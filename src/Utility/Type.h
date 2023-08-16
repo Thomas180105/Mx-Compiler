@@ -50,7 +50,7 @@ class ClassType : public Type{
 public:
     Scope *scope = nullptr;
     ClassType() = default;
-    ClassType(const string &name_) : Type(name) {}
+    ClassType(const string &name_) : Type(name_) {}
 };
 
 class FuncType : public Type{
