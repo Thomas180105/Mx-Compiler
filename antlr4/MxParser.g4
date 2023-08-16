@@ -37,6 +37,9 @@ classComponents
 
 constructorDeclaration: identifier '(' ')' body=suiteStatement;
 
+wrapper: suiteStatement | statement;
+suiteStatement: '{' statement* '}';
+
 statement
     : variableDeclaration
     | expresionStatement
@@ -51,12 +54,12 @@ variableDeclaration: typename (initDeclarator ',')* initDeclarator ';'; //have t
 initDeclarator: identifier ('=' initialValue=expression)?;
 
 expresionStatement: expression? ';';
-branchStatement: If '(' condition=expression ')' ifStatement=statement (Else elseStatement=statement)?;
+branchStatement: If '(' condition=expression ')' ifWrapper=wrapper (Else elseWrapper=wrapper)?;
 
 loopStatement
-    : While '(' conditon=expression ')' body=statement #WhileLoop
-    | For '(' init=variableDeclaration condition=expression? ';' step=expression? ')' body=statement # NormalForLoop
-    | For '(' init=expresionStatement condition=expression? ';' step=expression? ')' body=statement     # ExprForLoop
+    : While '(' conditon=expression ')' body=wrapper #WhileLoop
+    | For '(' init=variableDeclaration condition=expression? ';' step=expression? ')' body=wrapper # NormalForLoop
+    | For '(' init=expresionStatement condition=expression? ';' step=expression? ')' body=wrapper     # ExprForLoop
     ;
 
 controlFlowStatement
@@ -67,8 +70,6 @@ controlFlowStatement
 returnStatement: Return expression? ';';
 breakStatement: Break ';';
 continueStatement: Continue ';';
-
-suiteStatement: '{' statement* '}';
 
 emptyStatement: ';';
 
@@ -85,7 +86,6 @@ literalExpression
 : StringLiteral
 | logicalLiteral //实验中发现直接写为('true' | 'false')也可以
 | IntegerLiteral
-| This
 | Null
 ;
 
@@ -127,7 +127,7 @@ expression
     | <assoc=right> expression '?' expression ':' expression       # TernaryExpr
     | <assoc=right> lhs=expression '='                      rhs=expression # AssignExpr
     | literalExpression                                                # LiteralExpr
-    | identifier                                                       # IdentifierExpr
+    | (identifier | This)                                                       # IdentifierExpr
     ;
 
 newExpression: 'new' newTypename ('(' ')')?;

@@ -67,6 +67,7 @@ int main(int argc, char const *argv[]) {
 
         FunctionScanner functionscanner(&globalscope);
         functionscanner.builtInInit();
+        std::cerr<<"the ast.root is "<<ast.root<<std::endl;
         functionscanner.visit(ast.root);
 
         std::cerr << "stop5" << std::endl;

@@ -51,6 +51,14 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitWrapper(MxParser::WrapperContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitSuiteStatement(MxParser::SuiteStatementContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitStatement(MxParser::StatementContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -104,10 +112,6 @@ public:
   }
 
   virtual std::any visitContinueStatement(MxParser::ContinueStatementContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitSuiteStatement(MxParser::SuiteStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 

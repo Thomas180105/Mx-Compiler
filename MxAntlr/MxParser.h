@@ -29,14 +29,14 @@ public:
   enum {
     RuleProgram = 0, RuleDeclaration = 1, RuleFunctionDeclaration = 2, RuleFunctionDeclList = 3, 
     RuleFunctionDeclPair = 4, RuleFunctionCallList = 5, RuleClassDeclaration = 6, 
-    RuleClassComponents = 7, RuleConstructorDeclaration = 8, RuleStatement = 9, 
-    RuleVariableDeclaration = 10, RuleInitDeclarator = 11, RuleExpresionStatement = 12, 
-    RuleBranchStatement = 13, RuleLoopStatement = 14, RuleControlFlowStatement = 15, 
-    RuleReturnStatement = 16, RuleBreakStatement = 17, RuleContinueStatement = 18, 
-    RuleSuiteStatement = 19, RuleEmptyStatement = 20, RuleLogicalLiteral = 21, 
-    RuleLiteralExpression = 22, RuleTypename = 23, RuleNewTypename = 24, 
-    RuleNewArrayExpr = 25, RuleNewArrayEmpty = 26, RuleIdentifier = 27, 
-    RuleExpression = 28, RuleNewExpression = 29, RuleBuiltInTypename = 30
+    RuleClassComponents = 7, RuleConstructorDeclaration = 8, RuleWrapper = 9, 
+    RuleSuiteStatement = 10, RuleStatement = 11, RuleVariableDeclaration = 12, 
+    RuleInitDeclarator = 13, RuleExpresionStatement = 14, RuleBranchStatement = 15, 
+    RuleLoopStatement = 16, RuleControlFlowStatement = 17, RuleReturnStatement = 18, 
+    RuleBreakStatement = 19, RuleContinueStatement = 20, RuleEmptyStatement = 21, 
+    RuleLogicalLiteral = 22, RuleLiteralExpression = 23, RuleTypename = 24, 
+    RuleNewTypename = 25, RuleNewArrayExpr = 26, RuleNewArrayEmpty = 27, 
+    RuleIdentifier = 28, RuleExpression = 29, RuleNewExpression = 30, RuleBuiltInTypename = 31
   };
 
   explicit MxParser(antlr4::TokenStream *input);
@@ -65,6 +65,8 @@ public:
   class ClassDeclarationContext;
   class ClassComponentsContext;
   class ConstructorDeclarationContext;
+  class WrapperContext;
+  class SuiteStatementContext;
   class StatementContext;
   class VariableDeclarationContext;
   class InitDeclaratorContext;
@@ -75,7 +77,6 @@ public:
   class ReturnStatementContext;
   class BreakStatementContext;
   class ContinueStatementContext;
-  class SuiteStatementContext;
   class EmptyStatementContext;
   class LogicalLiteralContext;
   class LiteralExpressionContext;
@@ -234,6 +235,36 @@ public:
 
   ConstructorDeclarationContext* constructorDeclaration();
 
+  class  WrapperContext : public antlr4::ParserRuleContext {
+  public:
+    WrapperContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    SuiteStatementContext *suiteStatement();
+    StatementContext *statement();
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  WrapperContext* wrapper();
+
+  class  SuiteStatementContext : public antlr4::ParserRuleContext {
+  public:
+    SuiteStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *OpenBrace();
+    antlr4::tree::TerminalNode *CloseBrace();
+    std::vector<StatementContext *> statement();
+    StatementContext* statement(size_t i);
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  SuiteStatementContext* suiteStatement();
+
   class  StatementContext : public antlr4::ParserRuleContext {
   public:
     StatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
@@ -304,16 +335,16 @@ public:
   class  BranchStatementContext : public antlr4::ParserRuleContext {
   public:
     MxParser::ExpressionContext *condition = nullptr;
-    MxParser::StatementContext *ifStatement = nullptr;
-    MxParser::StatementContext *elseStatement = nullptr;
+    MxParser::WrapperContext *ifWrapper = nullptr;
+    MxParser::WrapperContext *elseWrapper = nullptr;
     BranchStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *If();
     antlr4::tree::TerminalNode *OpenParen();
     antlr4::tree::TerminalNode *CloseParen();
     ExpressionContext *expression();
-    std::vector<StatementContext *> statement();
-    StatementContext* statement(size_t i);
+    std::vector<WrapperContext *> wrapper();
+    WrapperContext* wrapper(size_t i);
     antlr4::tree::TerminalNode *Else();
 
 
@@ -343,13 +374,13 @@ public:
     MxParser::VariableDeclarationContext *init = nullptr;
     MxParser::ExpressionContext *condition = nullptr;
     MxParser::ExpressionContext *step = nullptr;
-    MxParser::StatementContext *body = nullptr;
+    MxParser::WrapperContext *body = nullptr;
     antlr4::tree::TerminalNode *For();
     antlr4::tree::TerminalNode *OpenParen();
     antlr4::tree::TerminalNode *SemiColon();
     antlr4::tree::TerminalNode *CloseParen();
     VariableDeclarationContext *variableDeclaration();
-    StatementContext *statement();
+    WrapperContext *wrapper();
     std::vector<ExpressionContext *> expression();
     ExpressionContext* expression(size_t i);
 
@@ -363,13 +394,13 @@ public:
     MxParser::ExpresionStatementContext *init = nullptr;
     MxParser::ExpressionContext *condition = nullptr;
     MxParser::ExpressionContext *step = nullptr;
-    MxParser::StatementContext *body = nullptr;
+    MxParser::WrapperContext *body = nullptr;
     antlr4::tree::TerminalNode *For();
     antlr4::tree::TerminalNode *OpenParen();
     antlr4::tree::TerminalNode *SemiColon();
     antlr4::tree::TerminalNode *CloseParen();
     ExpresionStatementContext *expresionStatement();
-    StatementContext *statement();
+    WrapperContext *wrapper();
     std::vector<ExpressionContext *> expression();
     ExpressionContext* expression(size_t i);
 
@@ -381,12 +412,12 @@ public:
     WhileLoopContext(LoopStatementContext *ctx);
 
     MxParser::ExpressionContext *conditon = nullptr;
-    MxParser::StatementContext *body = nullptr;
+    MxParser::WrapperContext *body = nullptr;
     antlr4::tree::TerminalNode *While();
     antlr4::tree::TerminalNode *OpenParen();
     antlr4::tree::TerminalNode *CloseParen();
     ExpressionContext *expression();
-    StatementContext *statement();
+    WrapperContext *wrapper();
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
@@ -478,22 +509,6 @@ public:
 
   ContinueStatementContext* continueStatement();
 
-  class  SuiteStatementContext : public antlr4::ParserRuleContext {
-  public:
-    SuiteStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *OpenBrace();
-    antlr4::tree::TerminalNode *CloseBrace();
-    std::vector<StatementContext *> statement();
-    StatementContext* statement(size_t i);
-
-
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  SuiteStatementContext* suiteStatement();
-
   class  EmptyStatementContext : public antlr4::ParserRuleContext {
   public:
     EmptyStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
@@ -528,7 +543,6 @@ public:
     antlr4::tree::TerminalNode *StringLiteral();
     LogicalLiteralContext *logicalLiteral();
     antlr4::tree::TerminalNode *IntegerLiteral();
-    antlr4::tree::TerminalNode *This();
     antlr4::tree::TerminalNode *Null();
 
 
@@ -811,6 +825,7 @@ public:
     IdentifierExprContext(ExpressionContext *ctx);
 
     IdentifierContext *identifier();
+    antlr4::tree::TerminalNode *This();
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };

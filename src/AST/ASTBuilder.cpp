@@ -88,6 +88,42 @@ std::any ASTBuilder::visitConstructorDeclaration(MxParser::ConstructorDeclaratio
     return node;
 }
 
+//std::any ASTBuilder::visitSuiteStatement(MxParser::SuiteStatementContext *ctx)
+//{
+//#ifdef Info
+//    std::cerr<<"visitSuiteStatement\n";
+//#endif
+//    auto node = new ASTSuiteNode;
+////    std::cerr<<"visitSuite begin" << std::endl;
+//    for (auto stmt : ctx->statement())
+//    {
+////        std::cerr<<"a Suite id here" << std::endl;
+//        auto res = any_cast<ASTStmtNode*>(visit(stmt));
+//        node->stmts.push_back(res);
+//    }
+////    std::cerr<<"###"<<node<<std::endl;
+//    return static_cast<ASTStmtNode*>(node);
+//}
+
+std::any ASTBuilder::visitWrapper(MxParser::WrapperContext *ctx)
+{
+#ifdef Info
+    std::cerr<<"visitWrapper\n";
+#endif
+    //有{}的情形
+    if (ctx->suiteStatement())
+    {
+        auto tmp = visit(ctx->suiteStatement());
+        if (auto res = *any_cast<ASTStmtNode*>(&tmp)) return res;
+    }
+    //无{}情形
+    auto node = new ASTSuiteNode;
+    auto tmp = visit(ctx->statement());
+    if (auto res = *any_cast<ASTStmtNode*>(&tmp)) node->stmts.push_back(res);
+    return static_cast<ASTStmtNode*>(node);
+}
+
+
 std::any ASTBuilder::visitVariableDeclaration(MxParser::VariableDeclarationContext *ctx)
 {
 #ifdef Info
@@ -115,8 +151,11 @@ std::any ASTBuilder::visitExpresionStatement(MxParser::ExpresionStatementContext
     std::cerr<<"visitExpresionStatement\n";
 #endif
     auto node = new ASTExprStmtNode;
-    auto res = visit(ctx->expression());
-    node->expr = any_cast<ASTExprNode*>(res);
+    if (ctx->expression())
+    {
+        auto res = visit(ctx->expression());
+        node->expr = any_cast<ASTExprNode*>(res);
+    }
     return static_cast<ASTStmtNode*>(node);
 }
 
@@ -127,9 +166,9 @@ std::any ASTBuilder::visitBranchStatement(MxParser::BranchStatementContext *ctx)
 #endif
     auto node = new ASTBranchStmtNode;
     node->conditions.push_back(any_cast<ASTExprNode*>(visit(ctx->expression())));
-    for (auto stmt : ctx->statement())
+    for (auto wra : ctx->wrapper())
     {
-        node->blocks.push_back(dynamic_cast<ASTSuiteNode*>(any_cast<ASTStmtNode*>(visit(stmt))));
+        node->blocks.push_back(dynamic_cast<ASTSuiteNode*>(any_cast<ASTStmtNode*>(visit(wra))));
     }
     return static_cast<ASTStmtNode*>(node);
 }
@@ -144,7 +183,7 @@ std::any ASTBuilder::visitWhileLoop(MxParser::WhileLoopContext *ctx)
 //    std::cerr<<"visitWhileLoop 1.00"<<std::endl;
     node->cond = any_cast<ASTExprNode*>(visit(ctx->expression()));
 //    std::cerr<<"visitWhileLoop 2.00"<<std::endl;
-    node->block = dynamic_cast<ASTSuiteNode*>(any_cast<ASTStmtNode*>(visit(ctx->statement())));
+    node->block = dynamic_cast<ASTSuiteNode*>(any_cast<ASTStmtNode*>(visit(ctx->wrapper())));
 //    std::cerr<<"visitWhileLoop 3.00"<<std::endl;
     return static_cast<ASTStmtNode*>(node);
 }
@@ -171,9 +210,9 @@ std::any ASTBuilder::visitNormalForLoop(MxParser::NormalForLoopContext *ctx)
         if (res.has_value()) node->step = any_cast<ASTExprNode*>(res);
     }
     auto res = visit(ctx->body);
-    std::cerr<<"(((****************"<<any_cast<ASTStmtNode *>(res)<<std::endl;
+//    std::cerr<<"(((****************"<<any_cast<ASTStmtNode *>(res)<<std::endl;
     node->block = dynamic_cast<ASTSuiteNode *>(any_cast<ASTStmtNode *>(res));
-    std::cerr<<"(((&&&&&&&&&&&&&&&&&&&&&&"<<node->block<<std::endl;
+//    std::cerr<<"(((&&&&&&&&&&&&&&&&&&&&&&"<<node->block<<std::endl;
     return static_cast<ASTStmtNode*>(node);
 }
 
@@ -199,9 +238,9 @@ std::any ASTBuilder::visitExprForLoop(MxParser::ExprForLoopContext *ctx)
         if (res.has_value()) node->step = any_cast<ASTExprNode*>(res);
     }
     auto res = visit(ctx->body);
-    std::cerr<<"****************"<<any_cast<ASTStmtNode *>(res)<<std::endl;
+//    std::cerr<<"****************"<<any_cast<ASTStmtNode *>(res)<<std::endl;
     node->block = dynamic_cast<ASTSuiteNode *>(any_cast<ASTStmtNode *>(res));
-    std::cerr<<"&&&&&&&&&&&&&&&&&&&&&&"<<node->block<<std::endl;
+//    std::cerr<<"&&&&&&&&&&&&&&&&&&&&&&"<<node->block<<std::endl;
     return static_cast<ASTStmtNode*>(node);
 }
 
@@ -242,11 +281,10 @@ std::any ASTBuilder::visitSuiteStatement(MxParser::SuiteStatementContext *ctx)
 //    std::cerr<<"visitSuite begin" << std::endl;
     for (auto stmt : ctx->statement())
     {
-//        std::cerr<<"a Suite id here" << std::endl;
         auto res = any_cast<ASTStmtNode*>(visit(stmt));
         node->stmts.push_back(res);
     }
-    std::cerr<<"###"<<node<<std::endl;
+//    std::cerr<<"###"<<node<<std::endl;
     return static_cast<ASTStmtNode*>(node);
 }
 
@@ -490,7 +528,6 @@ std::any ASTBuilder::visitNewExpression(MxParser::NewExpressionContext *ctx)
     node->newType = any_cast<ASTNewTypeNode*>(visit(ctx->newTypename()));
     return static_cast<ASTExprNode*>(node);
 }
-
 
 
 

@@ -12,6 +12,7 @@ class ASTBuilder : public MxParserBaseVisitor {
 //    virtual std::any visitFunctionCallList(MxParser::FunctionCallListContext *ctx) override;
     virtual std::any visitClassDeclaration(MxParser::ClassDeclarationContext *ctx) override;
     virtual std::any visitConstructorDeclaration(MxParser::ConstructorDeclarationContext *ctx) override;
+    virtual std::any visitWrapper(MxParser::WrapperContext *ctx) override;
 //    virtual std::any visitStatement(MxParser::StatementContext *ctx) override;
     virtual std::any visitVariableDeclaration(MxParser::VariableDeclarationContext *ctx) override;
 //    virtual std::any visitInitDeclarator(MxParser::InitDeclaratorContext *ctx) override;

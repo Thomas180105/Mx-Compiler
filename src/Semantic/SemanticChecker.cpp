@@ -41,8 +41,16 @@ void SemanticChecker::visitFunctionNode(ASTFunctionNode *node)
             scope->addVar(p.second, Type(p.first->name, p.first->dim, false));
         }
         for (auto stmt : node->block->stmts) stmt->accept(this);
-        node->returnType->accept(this);
-        node->type = Type(node->returnType->name, node->returnType->dim, true);
+        std::cerr<<"%%%%%%"<<node->returnType<<std::endl;
+//注意构造函数的情况，比如class-13中的t = new B();
+//        node->returnType->accept(this);
+//        node->type = Type(node->returnType->name, node->returnType->dim, true);
+        if (node->returnType)
+        {
+            node->returnType->accept(this);
+            node->type = Type(node->returnType->name, node->returnType->dim, true);
+        }
+        else node->type = Type("void", 0, true);
     }
     catch(semantic_error &err){
         delete scope;
@@ -91,7 +99,8 @@ void SemanticChecker::visitExprStmtNode(ASTExprStmtNode *node)
 #ifdef INFO
     std::cerr<<"[semantic] 6"<<std::endl;
 #endif
-    node->expr->accept(this);
+    //in case that exprStmt is empty
+    if (node->expr) node->expr->accept(this);
 }
 //凡是继承自ASTExprNode都需要记录下type的信息
 void SemanticChecker::visitFuncExprNode(ASTFuncExprNode *node)
@@ -116,7 +125,7 @@ void SemanticChecker::visitFuncExprNode(ASTFuncExprNode *node)
         else //int type[]::size()
         {
             if (classMember->member != "size") throw semantic_error("non-buildIn functionCall to array is not allowed");
-            funcType = globalScope->tellFuncType("size");
+            funcType = globalScope->tellFuncType("__size__");//to fix the bug of builtIn_3
         }
     }
 
@@ -188,9 +197,9 @@ void SemanticChecker::visitSingleExprNode(ASTSingleExprNode *node)
 
     if (node->op == "++" || node->op == "--")
     {
-        if (node->right) node->type.isConst = true;
         if (!node->type.is_int()) throw semantic_error("++/-- meet with non-int var");
         if (node->type.isConst) throw semantic_error("++/-- meet with const var");
+        if (node->right) node->type.isConst = true; //注意顺序！不可以出现在上一个if判断之前
     }
     else if (node->op == "-")
     {
@@ -285,10 +294,10 @@ void SemanticChecker::visitTernaryExprNode(ASTTernaryExprNode *node)
     auto tType = node->True->type;
     auto fType = node->False->type;
     Type commonType;
-    if (tType == fType) commonType = tType;
-    else if (tType.convertible(fType)) commonType = tType; //A.convertible(B)表征B是否可以转为A
+    if (tType == fType || tType.convertible(fType)) commonType = tType; //A.convertible(B)表征B是否可以转为A
     else if (fType.convertible(tType)) commonType = fType;
     else throw semantic_error("fail to reach a commonType for ternaryExpr to return");
+    node->type = commonType;
 }
 
 void SemanticChecker::visitAssignExprNode(ASTAssignExprNode *node)

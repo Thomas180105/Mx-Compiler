@@ -37,7 +37,7 @@ public:
     void setConst() {isConst = true;}
     [[nodiscard]] bool is_const()  const { return isConst; }
     [[nodiscard]] bool assignable(const Type &rhs) const {return !isConst && convertible(rhs);}
-    [[nodiscard]] bool convertible(const Type &rhs) const
+    [[nodiscard]] bool convertible(const Type &rhs) const//判断rhd是否可以转化为this
     {
         if (rhs.is_null()) return dim > 0 || !is_builtIn();
         return name == rhs.name && dim == rhs.dim;

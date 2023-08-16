@@ -18,7 +18,11 @@ public:
     }
     virtual void visitProgramNode(ASTProgramNode *node) override
     {
-        for (auto u : node->children) u->accept(this);
+        for (auto u : node->children)
+        {
+            std::cerr<<"+"<<std::endl;
+            u->accept(this);
+        }
     }
     virtual void visitClassNode(ASTClassNode *node) override
     {
@@ -38,7 +42,10 @@ private:
             throw semantic_error("Function name conflicts with constructor of an existing class, funcName : " + node->name);
         FuncType cur(node->name);
         for (const auto& p : node->paras) cur.paras.emplace_back(p.first->name, p.first->dim, false);
-        cur.returnType = Type(node->returnType->name, node->returnType->dim, false);
+        //如果是构造函数过来，这里的node->returnType是nullptr，所以需要特判
+//        std::cerr<<"++++"<<node->returnType<<std::endl;
+        if (!node->returnType) cur.returnType = Type("void", 0, false);
+        else cur.returnType = Type(node->returnType->name, node->returnType->dim, false);
         scope->addFunc(cur);
     }
 public:
@@ -87,7 +94,7 @@ public:
         cur.paras.clear();
 
         //int type[]::size()
-        cur.name = "size";
+        cur.name = "__size__";
         cur.returnType = Type("int", 0, true);
         globalScope->addFunc(cur);
         cur.paras.clear();

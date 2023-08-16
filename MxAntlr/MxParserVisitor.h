@@ -37,6 +37,10 @@ public:
 
     virtual std::any visitConstructorDeclaration(MxParser::ConstructorDeclarationContext *context) = 0;
 
+    virtual std::any visitWrapper(MxParser::WrapperContext *context) = 0;
+
+    virtual std::any visitSuiteStatement(MxParser::SuiteStatementContext *context) = 0;
+
     virtual std::any visitStatement(MxParser::StatementContext *context) = 0;
 
     virtual std::any visitVariableDeclaration(MxParser::VariableDeclarationContext *context) = 0;
@@ -64,8 +68,6 @@ public:
     virtual std::any visitBreakStatement(MxParser::BreakStatementContext *context) = 0;
 
     virtual std::any visitContinueStatement(MxParser::ContinueStatementContext *context) = 0;
-
-    virtual std::any visitSuiteStatement(MxParser::SuiteStatementContext *context) = 0;
 
     virtual std::any visitEmptyStatement(MxParser::EmptyStatementContext *context) = 0;
 
