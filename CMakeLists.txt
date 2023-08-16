@@ -5,9 +5,8 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_subdirectory(MxAntlr)
 
-
-#test
 include_directories(/usr/include/antlr4-runtime/)
+#include_directories(/usr/local/include/antlr4-runtime)
 include_directories(src/AST)
 include_directories(src/Semantic)
 include_directories(src/Utility)
@@ -20,8 +19,6 @@ add_executable(MxCompiler_2023 ${sources})
 target_link_libraries(MxCompiler_2023 MxAntlr)
 
 set(TestdataPath "${PROJECT_SOURCE_DIR}/testcases")
-
-message(WARNING ${TestdataPath})
 
 set(SemaPath "${TestdataPath}/sema")
 file(GLOB_RECURSE test_files RELATIVE ${SemaPath} ${SemaPath}/*.mx)

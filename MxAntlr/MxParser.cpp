@@ -94,15 +94,15 @@ void mxparserParserInitialize() {
   	10,5,12,5,104,9,5,1,5,1,5,1,6,1,6,1,6,1,6,5,6,112,8,6,10,6,12,6,115,9,
   	6,1,6,1,6,1,6,1,7,1,7,1,7,3,7,123,8,7,1,8,1,8,1,8,1,8,1,8,1,9,1,9,1,9,
   	1,9,1,9,1,9,1,9,3,9,137,8,9,1,10,1,10,1,10,1,10,5,10,143,8,10,10,10,12,
-  	10,146,9,10,1,10,1,10,1,10,1,11,1,11,1,11,3,11,154,8,11,1,12,1,12,1,12,
-  	1,13,1,13,1,13,1,13,1,13,1,13,1,13,3,13,166,8,13,1,14,1,14,1,14,1,14,
-  	1,14,1,14,1,14,1,14,1,14,1,14,3,14,178,8,14,1,14,1,14,3,14,182,8,14,1,
-  	14,1,14,1,14,1,14,1,14,1,14,3,14,190,8,14,1,14,1,14,3,14,194,8,14,1,14,
-  	1,14,3,14,198,8,14,1,14,1,14,3,14,202,8,14,1,15,1,15,1,15,3,15,207,8,
-  	15,1,16,1,16,3,16,211,8,16,1,16,1,16,1,17,1,17,1,17,1,18,1,18,1,18,1,
-  	19,1,19,5,19,223,8,19,10,19,12,19,226,9,19,1,19,1,19,1,20,1,20,1,21,1,
-  	21,1,22,1,22,1,22,1,22,1,22,3,22,239,8,22,1,23,1,23,1,23,3,23,244,8,23,
-  	1,23,1,23,1,23,5,23,249,8,23,10,23,12,23,252,9,23,1,24,1,24,4,24,256,
+  	10,146,9,10,1,10,1,10,1,10,1,11,1,11,1,11,3,11,154,8,11,1,12,3,12,157,
+  	8,12,1,12,1,12,1,13,1,13,1,13,1,13,1,13,1,13,1,13,3,13,168,8,13,1,14,
+  	1,14,1,14,1,14,1,14,1,14,1,14,1,14,1,14,1,14,3,14,180,8,14,1,14,1,14,
+  	3,14,184,8,14,1,14,1,14,1,14,1,14,1,14,1,14,1,14,3,14,193,8,14,1,14,1,
+  	14,3,14,197,8,14,1,14,1,14,1,14,3,14,202,8,14,1,15,1,15,1,15,3,15,207,
+  	8,15,1,16,1,16,3,16,211,8,16,1,16,1,16,1,17,1,17,1,17,1,18,1,18,1,18,
+  	1,19,1,19,5,19,223,8,19,10,19,12,19,226,9,19,1,19,1,19,1,20,1,20,1,21,
+  	1,21,1,22,1,22,1,22,1,22,1,22,3,22,239,8,22,1,23,1,23,1,23,3,23,244,8,
+  	23,1,23,1,23,1,23,5,23,249,8,23,10,23,12,23,252,9,23,1,24,1,24,4,24,256,
   	8,24,11,24,12,24,257,1,24,5,24,261,8,24,10,24,12,24,264,9,24,1,24,5,24,
   	267,8,24,10,24,12,24,270,9,24,1,24,1,24,4,24,274,8,24,11,24,12,24,275,
   	1,24,5,24,279,8,24,10,24,12,24,282,9,24,1,24,5,24,285,8,24,10,24,12,24,
@@ -118,7 +118,7 @@ void mxparserParserInitialize() {
   	18,24,24,1,0,7,9,1,0,5,6,1,0,19,20,1,0,10,15,1,0,39,42,414,0,65,1,0,0,
   	0,2,73,1,0,0,0,4,75,1,0,0,0,6,89,1,0,0,0,8,94,1,0,0,0,10,102,1,0,0,0,
   	12,107,1,0,0,0,14,122,1,0,0,0,16,124,1,0,0,0,18,136,1,0,0,0,20,138,1,
-  	0,0,0,22,150,1,0,0,0,24,155,1,0,0,0,26,158,1,0,0,0,28,201,1,0,0,0,30,
+  	0,0,0,22,150,1,0,0,0,24,156,1,0,0,0,26,160,1,0,0,0,28,201,1,0,0,0,30,
   	206,1,0,0,0,32,208,1,0,0,0,34,214,1,0,0,0,36,217,1,0,0,0,38,220,1,0,0,
   	0,40,229,1,0,0,0,42,231,1,0,0,0,44,238,1,0,0,0,46,243,1,0,0,0,48,290,
   	1,0,0,0,50,292,1,0,0,0,52,296,1,0,0,0,54,299,1,0,0,0,56,313,1,0,0,0,58,
@@ -147,32 +147,32 @@ void mxparserParserInitialize() {
   	0,0,0,144,142,1,0,0,0,144,145,1,0,0,0,145,147,1,0,0,0,146,144,1,0,0,0,
   	147,148,3,22,11,0,148,149,5,35,0,0,149,21,1,0,0,0,150,153,3,54,27,0,151,
   	152,5,25,0,0,152,154,3,56,28,0,153,151,1,0,0,0,153,154,1,0,0,0,154,23,
-  	1,0,0,0,155,156,3,56,28,0,156,157,5,35,0,0,157,25,1,0,0,0,158,159,5,49,
-  	0,0,159,160,5,29,0,0,160,161,3,56,28,0,161,162,5,30,0,0,162,165,3,18,
-  	9,0,163,164,5,50,0,0,164,166,3,18,9,0,165,163,1,0,0,0,165,166,1,0,0,0,
-  	166,27,1,0,0,0,167,168,5,52,0,0,168,169,5,29,0,0,169,170,3,56,28,0,170,
-  	171,5,30,0,0,171,172,3,18,9,0,172,202,1,0,0,0,173,174,5,51,0,0,174,175,
-  	5,29,0,0,175,177,3,20,10,0,176,178,3,56,28,0,177,176,1,0,0,0,177,178,
-  	1,0,0,0,178,179,1,0,0,0,179,181,5,35,0,0,180,182,3,56,28,0,181,180,1,
-  	0,0,0,181,182,1,0,0,0,182,183,1,0,0,0,183,184,5,30,0,0,184,185,3,18,9,
-  	0,185,202,1,0,0,0,186,187,5,51,0,0,187,189,5,29,0,0,188,190,3,24,12,0,
-  	189,188,1,0,0,0,189,190,1,0,0,0,190,191,1,0,0,0,191,193,5,35,0,0,192,
-  	194,3,56,28,0,193,192,1,0,0,0,193,194,1,0,0,0,194,195,1,0,0,0,195,197,
-  	5,35,0,0,196,198,3,56,28,0,197,196,1,0,0,0,197,198,1,0,0,0,198,199,1,
-  	0,0,0,199,200,5,30,0,0,200,202,3,18,9,0,201,167,1,0,0,0,201,173,1,0,0,
-  	0,201,186,1,0,0,0,202,29,1,0,0,0,203,207,3,32,16,0,204,207,3,34,17,0,
-  	205,207,3,36,18,0,206,203,1,0,0,0,206,204,1,0,0,0,206,205,1,0,0,0,207,
-  	31,1,0,0,0,208,210,5,55,0,0,209,211,3,56,28,0,210,209,1,0,0,0,210,211,
-  	1,0,0,0,211,212,1,0,0,0,212,213,5,35,0,0,213,33,1,0,0,0,214,215,5,53,
-  	0,0,215,216,5,35,0,0,216,35,1,0,0,0,217,218,5,54,0,0,218,219,5,35,0,0,
-  	219,37,1,0,0,0,220,224,5,33,0,0,221,223,3,18,9,0,222,221,1,0,0,0,223,
-  	226,1,0,0,0,224,222,1,0,0,0,224,225,1,0,0,0,225,227,1,0,0,0,226,224,1,
-  	0,0,0,227,228,5,34,0,0,228,39,1,0,0,0,229,230,5,35,0,0,230,41,1,0,0,0,
-  	231,232,7,0,0,0,232,43,1,0,0,0,233,239,5,57,0,0,234,239,3,42,21,0,235,
-  	239,5,59,0,0,236,239,5,48,0,0,237,239,5,45,0,0,238,233,1,0,0,0,238,234,
-  	1,0,0,0,238,235,1,0,0,0,238,236,1,0,0,0,238,237,1,0,0,0,239,45,1,0,0,
-  	0,240,241,6,23,-1,0,241,244,3,60,30,0,242,244,3,54,27,0,243,240,1,0,0,
-  	0,243,242,1,0,0,0,244,250,1,0,0,0,245,246,10,1,0,0,246,247,5,31,0,0,247,
+  	1,0,0,0,155,157,3,56,28,0,156,155,1,0,0,0,156,157,1,0,0,0,157,158,1,0,
+  	0,0,158,159,5,35,0,0,159,25,1,0,0,0,160,161,5,49,0,0,161,162,5,29,0,0,
+  	162,163,3,56,28,0,163,164,5,30,0,0,164,167,3,18,9,0,165,166,5,50,0,0,
+  	166,168,3,18,9,0,167,165,1,0,0,0,167,168,1,0,0,0,168,27,1,0,0,0,169,170,
+  	5,52,0,0,170,171,5,29,0,0,171,172,3,56,28,0,172,173,5,30,0,0,173,174,
+  	3,18,9,0,174,202,1,0,0,0,175,176,5,51,0,0,176,177,5,29,0,0,177,179,3,
+  	20,10,0,178,180,3,56,28,0,179,178,1,0,0,0,179,180,1,0,0,0,180,181,1,0,
+  	0,0,181,183,5,35,0,0,182,184,3,56,28,0,183,182,1,0,0,0,183,184,1,0,0,
+  	0,184,185,1,0,0,0,185,186,5,30,0,0,186,187,3,18,9,0,187,202,1,0,0,0,188,
+  	189,5,51,0,0,189,190,5,29,0,0,190,192,3,24,12,0,191,193,3,56,28,0,192,
+  	191,1,0,0,0,192,193,1,0,0,0,193,194,1,0,0,0,194,196,5,35,0,0,195,197,
+  	3,56,28,0,196,195,1,0,0,0,196,197,1,0,0,0,197,198,1,0,0,0,198,199,5,30,
+  	0,0,199,200,3,18,9,0,200,202,1,0,0,0,201,169,1,0,0,0,201,175,1,0,0,0,
+  	201,188,1,0,0,0,202,29,1,0,0,0,203,207,3,32,16,0,204,207,3,34,17,0,205,
+  	207,3,36,18,0,206,203,1,0,0,0,206,204,1,0,0,0,206,205,1,0,0,0,207,31,
+  	1,0,0,0,208,210,5,55,0,0,209,211,3,56,28,0,210,209,1,0,0,0,210,211,1,
+  	0,0,0,211,212,1,0,0,0,212,213,5,35,0,0,213,33,1,0,0,0,214,215,5,53,0,
+  	0,215,216,5,35,0,0,216,35,1,0,0,0,217,218,5,54,0,0,218,219,5,35,0,0,219,
+  	37,1,0,0,0,220,224,5,33,0,0,221,223,3,18,9,0,222,221,1,0,0,0,223,226,
+  	1,0,0,0,224,222,1,0,0,0,224,225,1,0,0,0,225,227,1,0,0,0,226,224,1,0,0,
+  	0,227,228,5,34,0,0,228,39,1,0,0,0,229,230,5,35,0,0,230,41,1,0,0,0,231,
+  	232,7,0,0,0,232,43,1,0,0,0,233,239,5,57,0,0,234,239,3,42,21,0,235,239,
+  	5,59,0,0,236,239,5,48,0,0,237,239,5,45,0,0,238,233,1,0,0,0,238,234,1,
+  	0,0,0,238,235,1,0,0,0,238,236,1,0,0,0,238,237,1,0,0,0,239,45,1,0,0,0,
+  	240,241,6,23,-1,0,241,244,3,60,30,0,242,244,3,54,27,0,243,240,1,0,0,0,
+  	243,242,1,0,0,0,244,250,1,0,0,0,245,246,10,1,0,0,246,247,5,31,0,0,247,
   	249,5,32,0,0,248,245,1,0,0,0,249,252,1,0,0,0,250,248,1,0,0,0,250,251,
   	1,0,0,0,251,47,1,0,0,0,252,250,1,0,0,0,253,255,3,54,27,0,254,256,3,50,
   	25,0,255,254,1,0,0,0,256,257,1,0,0,0,257,255,1,0,0,0,257,258,1,0,0,0,
@@ -212,7 +212,7 @@ void mxparserParserInitialize() {
   	369,367,1,0,0,0,369,370,1,0,0,0,370,57,1,0,0,0,371,369,1,0,0,0,372,373,
   	5,43,0,0,373,376,3,48,24,0,374,375,5,29,0,0,375,377,5,30,0,0,376,374,
   	1,0,0,0,376,377,1,0,0,0,377,59,1,0,0,0,378,379,7,7,0,0,379,61,1,0,0,0,
-  	35,65,73,79,89,102,113,122,136,144,153,165,177,181,189,193,197,201,206,
+  	35,65,73,79,89,102,113,122,136,144,153,156,167,179,183,192,196,201,206,
   	210,224,238,243,250,257,262,268,275,280,286,290,313,354,367,369,376
   };
   staticData->serializedATN = antlr4::atn::SerializedATNView(serializedATNSegment, sizeof(serializedATNSegment) / sizeof(serializedATNSegment[0]));
@@ -1234,12 +1234,12 @@ MxParser::ExpresionStatementContext::ExpresionStatementContext(ParserRuleContext
   : ParserRuleContext(parent, invokingState) {
 }
 
-MxParser::ExpressionContext* MxParser::ExpresionStatementContext::expression() {
-  return getRuleContext<MxParser::ExpressionContext>(0);
-}
-
 tree::TerminalNode* MxParser::ExpresionStatementContext::SemiColon() {
   return getToken(MxParser::SemiColon, 0);
+}
+
+MxParser::ExpressionContext* MxParser::ExpresionStatementContext::expression() {
+  return getRuleContext<MxParser::ExpressionContext>(0);
 }
 
 
@@ -1258,6 +1258,7 @@ std::any MxParser::ExpresionStatementContext::accept(tree::ParseTreeVisitor *vis
 MxParser::ExpresionStatementContext* MxParser::expresionStatement() {
   ExpresionStatementContext *_localctx = _tracker.createInstance<ExpresionStatementContext>(_ctx, getState());
   enterRule(_localctx, 24, MxParser::RuleExpresionStatement);
+  size_t _la = 0;
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -1268,9 +1269,16 @@ MxParser::ExpresionStatementContext* MxParser::expresionStatement() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(155);
-    expression(0);
     setState(156);
+    _errHandler->sync(this);
+
+    _la = _input->LA(1);
+    if ((((_la & ~ 0x3fULL) == 0) &&
+      ((1ULL << _la) & 793170096846798944) != 0)) {
+      setState(155);
+      expression(0);
+    }
+    setState(158);
     match(MxParser::SemiColon);
    
   }
@@ -1343,24 +1351,24 @@ MxParser::BranchStatementContext* MxParser::branchStatement() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(158);
-    match(MxParser::If);
-    setState(159);
-    match(MxParser::OpenParen);
     setState(160);
-    antlrcpp::downCast<BranchStatementContext *>(_localctx)->condition = expression(0);
+    match(MxParser::If);
     setState(161);
-    match(MxParser::CloseParen);
+    match(MxParser::OpenParen);
     setState(162);
+    antlrcpp::downCast<BranchStatementContext *>(_localctx)->condition = expression(0);
+    setState(163);
+    match(MxParser::CloseParen);
+    setState(164);
     antlrcpp::downCast<BranchStatementContext *>(_localctx)->ifStatement = statement();
-    setState(165);
+    setState(167);
     _errHandler->sync(this);
 
-    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 10, _ctx)) {
+    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 11, _ctx)) {
     case 1: {
-      setState(163);
+      setState(165);
       match(MxParser::Else);
-      setState(164);
+      setState(166);
       antlrcpp::downCast<BranchStatementContext *>(_localctx)->elseStatement = statement();
       break;
     }
@@ -1447,24 +1455,20 @@ tree::TerminalNode* MxParser::ExprForLoopContext::OpenParen() {
   return getToken(MxParser::OpenParen, 0);
 }
 
-std::vector<tree::TerminalNode *> MxParser::ExprForLoopContext::SemiColon() {
-  return getTokens(MxParser::SemiColon);
-}
-
-tree::TerminalNode* MxParser::ExprForLoopContext::SemiColon(size_t i) {
-  return getToken(MxParser::SemiColon, i);
+tree::TerminalNode* MxParser::ExprForLoopContext::SemiColon() {
+  return getToken(MxParser::SemiColon, 0);
 }
 
 tree::TerminalNode* MxParser::ExprForLoopContext::CloseParen() {
   return getToken(MxParser::CloseParen, 0);
 }
 
-MxParser::StatementContext* MxParser::ExprForLoopContext::statement() {
-  return getRuleContext<MxParser::StatementContext>(0);
-}
-
 MxParser::ExpresionStatementContext* MxParser::ExprForLoopContext::expresionStatement() {
   return getRuleContext<MxParser::ExpresionStatementContext>(0);
+}
+
+MxParser::StatementContext* MxParser::ExprForLoopContext::statement() {
+  return getRuleContext<MxParser::StatementContext>(0);
 }
 
 std::vector<MxParser::ExpressionContext *> MxParser::ExprForLoopContext::expression() {
@@ -1534,15 +1538,15 @@ MxParser::LoopStatementContext* MxParser::loopStatement() {
     case 1: {
       _localctx = _tracker.createInstance<MxParser::WhileLoopContext>(_localctx);
       enterOuterAlt(_localctx, 1);
-      setState(167);
-      match(MxParser::While);
-      setState(168);
-      match(MxParser::OpenParen);
       setState(169);
-      antlrcpp::downCast<WhileLoopContext *>(_localctx)->conditon = expression(0);
+      match(MxParser::While);
       setState(170);
-      match(MxParser::CloseParen);
+      match(MxParser::OpenParen);
       setState(171);
+      antlrcpp::downCast<WhileLoopContext *>(_localctx)->conditon = expression(0);
+      setState(172);
+      match(MxParser::CloseParen);
+      setState(173);
       antlrcpp::downCast<WhileLoopContext *>(_localctx)->body = statement();
       break;
     }
@@ -1550,35 +1554,35 @@ MxParser::LoopStatementContext* MxParser::loopStatement() {
     case 2: {
       _localctx = _tracker.createInstance<MxParser::NormalForLoopContext>(_localctx);
       enterOuterAlt(_localctx, 2);
-      setState(173);
-      match(MxParser::For);
-      setState(174);
-      match(MxParser::OpenParen);
       setState(175);
-      antlrcpp::downCast<NormalForLoopContext *>(_localctx)->init = variableDeclaration();
+      match(MxParser::For);
+      setState(176);
+      match(MxParser::OpenParen);
       setState(177);
+      antlrcpp::downCast<NormalForLoopContext *>(_localctx)->init = variableDeclaration();
+      setState(179);
       _errHandler->sync(this);
 
       _la = _input->LA(1);
       if ((((_la & ~ 0x3fULL) == 0) &&
         ((1ULL << _la) & 793170096846798944) != 0)) {
-        setState(176);
+        setState(178);
         antlrcpp::downCast<NormalForLoopContext *>(_localctx)->condition = expression(0);
       }
-      setState(179);
-      match(MxParser::SemiColon);
       setState(181);
+      match(MxParser::SemiColon);
+      setState(183);
       _errHandler->sync(this);
 
       _la = _input->LA(1);
       if ((((_la & ~ 0x3fULL) == 0) &&
         ((1ULL << _la) & 793170096846798944) != 0)) {
-        setState(180);
+        setState(182);
         antlrcpp::downCast<NormalForLoopContext *>(_localctx)->step = expression(0);
       }
-      setState(183);
+      setState(185);
       match(MxParser::CloseParen);
-      setState(184);
+      setState(186);
       antlrcpp::downCast<NormalForLoopContext *>(_localctx)->body = statement();
       break;
     }
@@ -1586,44 +1590,35 @@ MxParser::LoopStatementContext* MxParser::loopStatement() {
     case 3: {
       _localctx = _tracker.createInstance<MxParser::ExprForLoopContext>(_localctx);
       enterOuterAlt(_localctx, 3);
-      setState(186);
+      setState(188);
       match(MxParser::For);
-      setState(187);
-      match(MxParser::OpenParen);
       setState(189);
+      match(MxParser::OpenParen);
+      setState(190);
+      antlrcpp::downCast<ExprForLoopContext *>(_localctx)->init = expresionStatement();
+      setState(192);
       _errHandler->sync(this);
 
       _la = _input->LA(1);
       if ((((_la & ~ 0x3fULL) == 0) &&
         ((1ULL << _la) & 793170096846798944) != 0)) {
-        setState(188);
-        antlrcpp::downCast<ExprForLoopContext *>(_localctx)->init = expresionStatement();
-      }
-      setState(191);
-      match(MxParser::SemiColon);
-      setState(193);
-      _errHandler->sync(this);
-
-      _la = _input->LA(1);
-      if ((((_la & ~ 0x3fULL) == 0) &&
-        ((1ULL << _la) & 793170096846798944) != 0)) {
-        setState(192);
+        setState(191);
         antlrcpp::downCast<ExprForLoopContext *>(_localctx)->condition = expression(0);
       }
-      setState(195);
+      setState(194);
       match(MxParser::SemiColon);
-      setState(197);
+      setState(196);
       _errHandler->sync(this);
 
       _la = _input->LA(1);
       if ((((_la & ~ 0x3fULL) == 0) &&
         ((1ULL << _la) & 793170096846798944) != 0)) {
-        setState(196);
+        setState(195);
         antlrcpp::downCast<ExprForLoopContext *>(_localctx)->step = expression(0);
       }
-      setState(199);
+      setState(198);
       match(MxParser::CloseParen);
-      setState(200);
+      setState(199);
       antlrcpp::downCast<ExprForLoopContext *>(_localctx)->body = statement();
       break;
     }

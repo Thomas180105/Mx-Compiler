@@ -291,8 +291,8 @@ public:
   public:
     ExpresionStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    ExpressionContext *expression();
     antlr4::tree::TerminalNode *SemiColon();
+    ExpressionContext *expression();
 
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -366,11 +366,10 @@ public:
     MxParser::StatementContext *body = nullptr;
     antlr4::tree::TerminalNode *For();
     antlr4::tree::TerminalNode *OpenParen();
-    std::vector<antlr4::tree::TerminalNode *> SemiColon();
-    antlr4::tree::TerminalNode* SemiColon(size_t i);
+    antlr4::tree::TerminalNode *SemiColon();
     antlr4::tree::TerminalNode *CloseParen();
-    StatementContext *statement();
     ExpresionStatementContext *expresionStatement();
+    StatementContext *statement();
     std::vector<ExpressionContext *> expression();
     ExpressionContext* expression(size_t i);
 
