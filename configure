@@ -1,3 +1,4 @@
+#!/bin/bash
 set -e
 
 # Generate the antlr4 parser
@@ -6,5 +7,8 @@ antlr4 -no-listener -visitor -o ../MxAntlr MxLexer.g4 MxParser.g4 -Dlanguage=Cpp
 cd ..
 
 # Compile program
-cmake -B bin
-cmake --build bin
+cmake -B build
+cmake --build build
+
+mkdir -p bin
+cp build/MxCompiler_2023 bin/mxc
