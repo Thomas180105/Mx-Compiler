@@ -14,7 +14,7 @@ include_directories(MxAntlr)
 
 file(GLOB_RECURSE sources src/*.cpp src/*.h)
 
-add_executable(MxCompiler_2023 ${sources})
+add_executable(MxCompiler_2023 ${sources} src/IR/IRType.h src/IR/IRNode.cpp)
 
 target_link_libraries(MxCompiler_2023 MxAntlr)
 

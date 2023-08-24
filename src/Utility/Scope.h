@@ -27,7 +27,8 @@ public:
         if (parent)
         {
             ++parent->childCnt;
-            scopeName = parent->scopeName + "-" + std::to_string(parent->childCnt);
+            //选择一些高级语言不可使用的名称作为 identifier。这在内建函数和类的成员方法中非常常见
+            scopeName = parent->scopeName + "." + std::to_string(parent->childCnt);
         }
     }
 

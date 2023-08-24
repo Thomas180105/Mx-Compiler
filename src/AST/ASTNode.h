@@ -368,6 +368,4 @@ public:
     void accept(ASTBaseVisitor *visitor) override { return visitor->visitProgramNode(this); }
     void print() override { std::cerr << "Unimplemented!\n"; }
 };
-
-
 #endif //MXCOMPILER_2023_ASTNODE_H
