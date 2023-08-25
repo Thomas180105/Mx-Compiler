@@ -38,10 +38,12 @@ private:
     map<string, IRVarNode*> varMap;
     map<ASTNode*, IRTypeNode*> ast2value;
     map<ASTMemberExprNode*, string> memberFuncMap;
+    IRVarNode *mallocArray(ASTNewTypeNode *node, int index);
+
 private:
     //tool functions
     void InitBuiltInFunc();
-    void globalInit();
+    void initGlobalStr();
     void InitGlobalVar();
     IRType *turnIRType(Type *type);
     IRType *turnIRType(ASTTypeNode *typeNode);
@@ -66,7 +68,7 @@ public:
         //TODO: check anything needed to be added
         delete program;
     }
-    void visitProgramNode(ASTProgramNode *node) override;
+    void visitProgramNode(ASTProgramNode *node) override; //TODO:this need double check!!!
     void visitClassNode(ASTClassNode *node) override;
     void visitFunctionNode(ASTFunctionNode *node) override;
 //    void visitTypeNode(ASTTypeNode *node) override;

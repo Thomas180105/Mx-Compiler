@@ -9,6 +9,7 @@ static IRIntType int1Type(1);
 static IRPtrType ptrType;
 static IRStringType strType;
 static IRVoidType voidType;
+static IRVarNode thisNode(&ptrType, "this", true);
 
 static IRLiteralNode nullNode(&ptrType, 0);
 static IRLiteralNode intZeroNode(&int32Type, 0);
@@ -143,6 +144,24 @@ void IRBuilder::InitBuiltInFunc()
     program->functions.push_back(newBoolArray);
 }
 
+void IRBuilder::InitGlobalVar()
+{
+    if (varToInit.empty()) return;
+    auto init = new IRFunctionNode(&voidType, "__.init");
+    program->functions.push_back(init);
+    init->blocks.push_back(new IRSuiteNode("entry"));
+    currentFunction = init;
+    currentBlock = init->blocks.front();
+    for (auto u : varToInit)
+    {
+        visit(u.second);
+        currentBlock->stmts.push_back(new IRStoreStmtNode(setVariable(turnIRType(&(u.second->type)), ast2value[u.second]), u.first));
+    }
+    currentBlock->stmts.push_back(new IRRetStmtNode(nullptr));
+    currentFunction = nullptr;
+}
+
+
 //将值从指针中取出来，需要先指定指的类型。如果指针本身是常量，那么就不需要额外的工作
 IRTypeNode *IRBuilder::setVariable(IRType *type, IRTypeNode *value)
 {
@@ -180,7 +199,7 @@ IRTypeNode *IRBuilder::defaultValue(IRType *type)
     return &nullNode;
 }
 
-void IRBuilder::globalInit()
+void IRBuilder::initGlobalStr()
 {
     string tmpStr = "_string" + std::to_string(counter["string"]++);
     auto varNode = new IRGlobalVarNode(&ptrType, tmpStr, true);
@@ -253,7 +272,7 @@ void IRBuilder::registerClass(ASTClassNode *node)
 void IRBuilder::visitProgramNode(ASTProgramNode *node)
 {
     InitBuiltInFunc();
-    globalInit();
+    initGlobalStr();
     for (auto c : node->children)
     {
         if (auto var = dynamic_cast<ASTVarStmtNode*>(c)) var->accept(this);
@@ -275,7 +294,7 @@ void IRBuilder::visitFunctionNode(ASTFunctionNode *node)
     currentFunction = func;
     if (node->name == "main" && !varToInit.empty())
     {
-        auto initCall = new IRCallStmtNode(nullptr, "__.globalInit");
+        auto initCall = new IRCallStmtNode(nullptr, "__.initGlobalStr");
         currentBlock->stmts.push_back(initCall);
     }
 
@@ -700,10 +719,138 @@ void IRBuilder::visitSingleExprNode(ASTSingleExprNode *node)
         currentBlock->stmts.push_back(new IRBinaryStmtNode("sub", exprRes, &intOneNode, res));
         currentBlock->stmts.push_back(new IRStoreStmtNode(res, dynamic_cast<IRVarNode*>(ast2value[node->expr])));
     }
-
     if (node->right) ast2value[node] = exprRes;
     else ast2value[node] = res;
 }
+
+void IRBuilder::visitLiterExprNode(ASTLiterExprNode *node)
+{
+    if (node->type.is_bool())
+    {
+        int val = (node->value == "true" ? 1 : 0);
+        auto res = new IRLiteralNode(&int1Type, val);
+        valueSet.insert(res);
+        ast2value[node] = res;
+    }
+    else if (node->type.is_int())
+    {
+        auto res = new IRLiteralNode(&int32Type, std::stoi(node->value));
+        valueSet.insert(res);
+        ast2value[node] = res;
+    }
+    else if (node->type.is_null()) ast2value[node] = &nullNode;
+    else if (node->type.is_string())
+    {
+        auto str = node->value.substr(1, node->value.size() - 2);
+        if (strMap.count(str))//如果已经存在，就直接维护一下ast2value就可以直接返回了
+        {
+            ast2value[node] = strMap[str];
+            return;
+        }
+        string res;
+        for (int i = 0, s = str.size(); i < s; ++i)
+        {
+            if (str[i] != '\\') res += str[i];
+            else
+            {
+                if (str[++i] == 'n') res += '\n';
+                else if (str[i] == '"') res += '\"';
+                else if (str[i] == '\\') res += '\\';
+            }
+        }
+        auto type = new IRArrayType(res.size() + 1, &int8Type);
+        auto globalVar = new IRGlobalVarNode(&ptrType, "__string" + std::to_string(counter["string"]++), true);
+        auto strNode = new IRStringNode(type, res);
+        valueSet.insert(globalVar), valueSet.insert(strNode);
+        program->globalVarStmts.push_back(new IRGlobalVarStmtNode(strNode, globalVar));
+        strMap[str] = globalVar;
+        ast2value[node] = globalVar;
+    }
+}
+
+void IRBuilder::visitArrayExprNode(ASTArrayExprNode *node)
+{
+    //ASTExprNode *array = nullptr, *index = nullptr;
+    auto IRType = turnIRType(&(node->type));
+    visit(node->array), visit(node->index);
+    auto arrayVar = setVariable(&ptrType, ast2value[node->array]);
+    auto indexVar = setVariable(&int32Type, ast2value[node->index]);
+    auto res = new IRVarNode(&ptrType, "__array.res" + std::to_string(counter["array.tmp"]++), false);
+    valueSet.insert(res);
+    currentBlock->stmts.push_back(new IRGetElementPtrStmtNode(res, dynamic_cast<IRVarNode*>(arrayVar), indexVar, IRType));
+    ast2value[node] = res;
+}
+
+void IRBuilder::visitIdExprNode(ASTIdExprNode *node)
+{
+    if (node->name == "this") ast2value[node] = &thisNode;
+    else if (!currentClass || !memberIndex.count(currentClass->name + '.' + node->name))
+    {
+        //不是类的成员，或者虽然在类中，但是没有相关的memberIndex信息(对应着函数的传参)
+        ast2value[node] = varMap[node->uniqueName];
+    }
+    else//类的成员
+    {
+        auto index = new IRLiteralNode(&int32Type, memberIndex[currentClass->name + '.' + node->name]);
+        auto res = new IRVarNode(&ptrType, "__member.tmp" + std::to_string(counter["member.res"]++), false);
+        valueSet.insert(index), valueSet.insert(res);
+        currentBlock->stmts.push_back(new IRGetElementPtrStmtNode(res, &thisNode, index, turnIRType(&(node->type))));
+        ast2value[node] = res;
+    }
+}
+
+void IRBuilder::visitExprStmtNode(ASTExprStmtNode *node)
+{
+    visit(node->expr);
+}
+
+void IRBuilder::visitFuncExprNode(ASTFuncExprNode *node)
+{
+    //ASTExprNode* func = nullptr;  vector<ASTExprNode*> args;
+    auto IRType = turnIRType(&(node->type));
+    IRVarNode *res = nullptr;
+
+    if (IRType->to_string() != "void")
+    {
+        res = new IRVarNode(IRType, "__call.tmp" + std::to_string(counter["call.tmp"]++), true);
+        valueSet.insert(res);
+    }
+
+    IRCallStmtNode *callNode = nullptr;
+    if (auto func = dynamic_cast<ASTIdExprNode*>(node->func))
+    {
+        //类成员函数调用
+        if (currentClass && memberFuncSet.contains(currentClass->name + '.' + func->name))
+        {
+            callNode = new IRCallStmtNode(res, currentClass->name + '.' + func->name);
+            auto thisVar = new IRVarNode(&ptrType, "this", true);
+            valueSet.insert(thisVar);
+            callNode->args.push_back(thisVar);
+        }
+        //普通函数调用
+        else callNode = new IRCallStmtNode(res, func->name);
+    }
+    else
+    {
+        auto memFunc = dynamic_cast<ASTMemberExprNode*>(node->func);
+        visit(node->func);
+        callNode = new IRCallStmtNode(res, memberFuncMap[memFunc]);
+        callNode->args.push_back(setVariable(&ptrType, ast2value[memFunc]));
+    }
+
+    for (auto arg : node->args)
+    {
+        visit(arg);
+        callNode->args.push_back(setVariable(turnIRType(&(arg->type)), ast2value[arg]));
+    }
+    currentBlock->stmts.push_back(callNode);
+    ast2value[node] = res;
+}
+
+
+
+
+
 
 
 
