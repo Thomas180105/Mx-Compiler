@@ -38,6 +38,7 @@ private:
     map<string, IRVarNode*> varMap;
     map<ASTNode*, IRTypeNode*> ast2value;
     map<ASTMemberExprNode*, string> memberFuncMap;
+    //TODO:unimplemented
     IRVarNode *mallocArray(ASTNewTypeNode *node, int index);
 
 private:

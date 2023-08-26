@@ -847,6 +847,103 @@ void IRBuilder::visitFuncExprNode(ASTFuncExprNode *node)
     ast2value[node] = res;
 }
 
+void IRBuilder::visitNewExprNode(ASTNewExprNode *node)
+{
+    if (node->newType->size.empty())
+    {
+        //simple situation ptr var = new type []
+//        auto newType = turnIRType(&(node->type));
+        auto newType = str2clsType[node->newType->name];//info are prepared in registerClass
+        auto res = new IRVarNode(&ptrType, "__new.res" + std::to_string(counter["new.res"]++), true);//pointer is const
+        auto sizeNode = new IRLiteralNode(&int32Type, newType->size());
+        auto callNode = new IRCallStmtNode(res, "malloc");
+        valueSet.insert(res), valueSet.insert(sizeNode);
+        //start to prepare the args
+        callNode->args.push_back(sizeNode);
+        currentBlock->stmts.push_back(callNode);
+
+        auto consFuncStr = node->newType->name + '.' + node->newType->name;
+        if (memberFuncSet.contains(consFuncStr))
+        {
+            //call the constructor
+            auto consNode = new IRCallStmtNode(nullptr, consFuncStr);
+            consNode->args.push_back(res);
+            currentBlock->stmts.push_back(consNode);
+        }
+        ast2value[node] = res;
+    }
+    else
+    {
+        //more complex situation, like ptr var = new int [5][] or ptr var = new int [5][6]
+        ast2value[node] = mallocArray(node->newType, 0);//递归函数
+    }
+}
+
+//currentBlock->stmts.push_back(new IRGetElementPtrStmtNode(index, resPtr, i, &ptrType));
+//currentBlock->stmts.push_back(new IRStoreStmtNode(sonPtr, index));
+//TODO:这两行代码的含义不清楚，double check needed
+IRVarNode *IRBuilder::mallocArray(ASTNewTypeNode *node, int index)
+{
+    visit(node->size[index]);
+    auto sizeNode = setVariable(&int32Type, ast2value[node->size[index]]);
+    if (index == node->size.size())
+    {
+        //递归出口
+        auto resPtr = new IRVarNode(&ptrType, "__new.res" + std::to_string(counter["new.res"]++), true);
+        valueSet.insert(resPtr);
+
+        IRCallStmtNode *callNode = nullptr;
+        if (node->size.size() < node->dim) callNode = new IRCallStmtNode(resPtr, "__newPtrArray");
+        else if (node->name == "bool") callNode = new IRCallStmtNode(resPtr, "__newBoolArray");
+        else if (node->name == "int") callNode = new IRCallStmtNode(resPtr, "__newIntArray");
+        else /*the str case*/ callNode = new IRCallStmtNode(resPtr, "__newPtrArray");
+        callNode->args.push_back(sizeNode);
+
+        currentBlock->stmts.push_back(callNode);
+        return resPtr;
+    }
+    else
+    {
+        auto resPtr = new IRVarNode(&ptrType, "__new.res" + std::to_string(counter["new.res"]++), true);
+        valueSet.insert(resPtr);
+        auto callNode = new IRCallStmtNode(resPtr, "__newPtrArray");
+        callNode->args.push_back(sizeNode);
+        currentBlock->stmts.push_back(callNode);
+
+        auto workBlock = new IRSuiteNode("__new.array" + std::to_string(counter["new.array"]++));
+        auto workEnd = new IRSuiteNode("__new.array.end" + std::to_string(counter["new.array.end"]++));
+        currentFunction->blocks.push_back(workBlock);
+        currentBlock->stmts.push_back(new IRBrStmtNode(workBlock->label));
+        string fromLabel = currentBlock->label;
+        currentBlock = workBlock;
+
+        auto i = new IRVarNode(&int32Type, "__new.tmp.i" + std::to_string(counter["new.tmp.i"]++), true);
+        valueSet.insert(i);
+        auto phiNode = new IRPhiStmtNode(resPtr);
+        currentBlock->stmts.push_back(phiNode);
+        phiNode->pairs.emplace_back(&intZeroNode, fromLabel);
+        auto next = new IRVarNode(&int32Type, "__new.tmp.next" + std::to_string(counter["new.tmp.next"]++), true);
+        valueSet.insert(next);
+        auto addStmt = new IRBinaryStmtNode("+", &intOneNode, i, next);
+        currentBlock->stmts.push_back(addStmt);
+
+        auto sonPtr = mallocArray(node, index + 1);//递归此处发生
+        auto index = new IRVarNode(&ptrType, "__new.tmp.ind" + std::to_string(counter["new.tmp.ind"]++), true);
+        valueSet.insert(index);
+        currentBlock->stmts.push_back(new IRGetElementPtrStmtNode(index, resPtr, i, &ptrType));
+        currentBlock->stmts.push_back(new IRStoreStmtNode(sonPtr, index));
+        phiNode->pairs.emplace_back(next, currentBlock->label);
+        auto comp = new IRVarNode(&int1Type, "__new.tmp.comp" + std::to_string(counter["new.tmp.comp"]++), true);
+        valueSet.insert(comp);
+        currentBlock->stmts.push_back(new IRIcmpStmtNode("icmp slt", next, sizeNode, comp));//op["<"]
+        currentBlock->stmts.push_back(new IRBrCondStmtNode(comp, workBlock->label, workEnd->label));
+
+        currentBlock = workEnd;
+        currentFunction->blocks.push_back(workEnd);
+        return resPtr;
+    }
+}
+
 
 
 
