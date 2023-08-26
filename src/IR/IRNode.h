@@ -15,12 +15,6 @@ public:
     vector<IRGlobalVarStmtNode *> globalVarStmts;
     vector<IRFunctionNode *> functions;
 
-    ~IRProgramNode() override
-    {
-        for (auto &g: globalVarStmts) delete g;
-        for (auto &f: functions) delete f;
-    }
-
     void accept(IRBaseVisitor *visitor) override { visitor->visitProgram(this); }
     string to_string() override;
     void print() override { std::cout << to_string(); }
@@ -35,10 +29,6 @@ public:
 
     explicit IRFunctionNode(IRType *retType_, string name_) : retType(retType_), name(name_) {}
     explicit IRFunctionNode(IRType *retType_) : retType(retType_) {}
-    ~IRFunctionNode() override
-    {
-        for (auto &b: blocks) delete b;
-    }
     void accept(IRBaseVisitor *visitor) override { visitor->visitFunction(this); }
     string to_string() override;
     void print() override { std::cout << to_string(); }
@@ -63,8 +53,6 @@ public:
 
     explicit IRTypeNode(IRType *type_) : type(type_) {}
     virtual void accept(IRBaseVisitor *visitor) override { visitor->visitType(this); }
-    virtual string to_string() override;
-    virtual void print() override { std::cout << to_string(); }
 };
 
 class IRVarNode : public IRTypeNode {

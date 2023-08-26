@@ -53,6 +53,7 @@ private:
     void registerClass(ASTClassNode *node);
     IRTypeNode* setVariable(IRType* type, IRTypeNode* value);
     void setCondition(IRTypeNode* cond, IRSuiteNode* trueBlock, IRSuiteNode* falseBlock);
+    void print() {program->print();}
 public:
     IRBuilder()
     {

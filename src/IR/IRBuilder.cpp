@@ -881,7 +881,7 @@ void IRBuilder::visitNewExprNode(ASTNewExprNode *node)
 
 //currentBlock->stmts.push_back(new IRGetElementPtrStmtNode(index, resPtr, i, &ptrType));
 //currentBlock->stmts.push_back(new IRStoreStmtNode(sonPtr, index));
-//TODO:这两行代码的含义不清楚，double check needed
+//TODO:double check needed
 IRVarNode *IRBuilder::mallocArray(ASTNewTypeNode *node, int index)
 {
     visit(node->size[index]);
