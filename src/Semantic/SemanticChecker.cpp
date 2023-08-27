@@ -1,7 +1,7 @@
 #include "ASTNode.h"
 #include "SemanticChecker.h"
 
-#define INFO
+//#define INFO
 void SemanticChecker::visitProgramNode(ASTProgramNode *node)
 {
 #ifdef INFO

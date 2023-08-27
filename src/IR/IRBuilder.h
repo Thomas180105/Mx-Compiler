@@ -38,7 +38,6 @@ private:
     map<string, IRVarNode*> varMap;
     map<ASTNode*, IRTypeNode*> ast2value;
     map<ASTMemberExprNode*, string> memberFuncMap;
-    //TODO:unimplemented
     IRVarNode *mallocArray(ASTNewTypeNode *node, int index);
 
 private:
@@ -53,7 +52,6 @@ private:
     void registerClass(ASTClassNode *node);
     IRTypeNode* setVariable(IRType* type, IRTypeNode* value);
     void setCondition(IRTypeNode* cond, IRSuiteNode* trueBlock, IRSuiteNode* falseBlock);
-    void print() {program->print();}
 public:
     IRBuilder()
     {
@@ -67,9 +65,10 @@ public:
     };
     ~IRBuilder()
     {
-        //TODO: check anything needed to be added
         delete program;
+        for (auto v : valueSet) delete v;
     }
+    void print() {program->print();}
     void visitProgramNode(ASTProgramNode *node) override; //TODO:this need double check!!!
     void visitClassNode(ASTClassNode *node) override;
     void visitFunctionNode(ASTFunctionNode *node) override;

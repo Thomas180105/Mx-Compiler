@@ -3,6 +3,7 @@
 #include "IRNode.h"
 #include "ASTNode.h"
 
+static IRIntType boolType(32);
 static IRIntType int32Type(32);
 static IRIntType int8Type(8);
 static IRIntType int1Type(1);
@@ -194,7 +195,7 @@ void IRBuilder::setCondition(IRTypeNode *cond, IRSuiteNode *trueBlock, IRSuiteNo
 IRTypeNode *IRBuilder::defaultValue(IRType *type)
 {
     if (type == &int32Type) return &intZeroNode;
-    if (type == &int1Type) return &boolFalseNode;
+    if (type == &boolType) return &boolFalseNode;
     if (type == &strType) return strMap[""];
     return &nullNode;
 }
@@ -217,7 +218,7 @@ IRType *IRBuilder::turnIRType(Type *type)
     if (type->dim) return &ptrType;
     if (type->name == "void") return &voidType;
     if (type->name == "int") return &int32Type;
-    if (type->name == "bool") return &int1Type;
+    if (type->name == "bool") return &boolType;
     if (type->name == "string") return &strType;
     return &ptrType;
 }
@@ -228,7 +229,7 @@ IRType *IRBuilder::turnIRType(ASTTypeNode *typeNode)
     if (typeNode->dim) return &ptrType;
     if (typeNode->name == "void") return &voidType;
     if (typeNode->name == "int") return &int32Type;
-    if (typeNode->name == "bool") return &int1Type;
+    if (typeNode->name == "bool") return &boolType;
     if (typeNode->name == "string") return &strType;
     return &ptrType;
 }
@@ -292,6 +293,7 @@ void IRBuilder::visitFunctionNode(ASTFunctionNode *node)
     auto func = func2func[node];
     func->blocks.push_back(new IRSuiteNode("entry"));
     currentFunction = func;
+    currentBlock = func->blocks.front();
     if (node->name == "main" && !varToInit.empty())
     {
         auto initCall = new IRCallStmtNode(nullptr, "__.initGlobalStr");
@@ -366,8 +368,6 @@ void IRBuilder::visitClassNode(ASTClassNode *node)
     currentClass = nullptr;
 }
 
-//TODO: modify the order to make it more logical
-//TODO: about the stmt
 void IRBuilder::visitVarStmtNode(ASTVarStmtNode *node)
 {
     auto varIRType = turnIRType(node->type);
@@ -653,6 +653,7 @@ void IRBuilder::visitBinaryExprNode(ASTBinaryExprNode *node)
         auto opIR = op[node->op];
         if (opIR.find("icmp") != std::string::npos)//为大小比较，需要特殊处理
         {
+            std::cerr<<"&*^%$#"<<node->type.name<<'\n';
             auto tmp = new IRVarNode(&int1Type, "__binary.tmp" + std::to_string(counter["binary.tmp"]++), true);
             valueSet.insert(tmp);
             currentBlock->stmts.push_back(new IRIcmpStmtNode(opIR, lhs, rhs, tmp));
@@ -728,7 +729,7 @@ void IRBuilder::visitLiterExprNode(ASTLiterExprNode *node)
     if (node->type.is_bool())
     {
         int val = (node->value == "true" ? 1 : 0);
-        auto res = new IRLiteralNode(&int1Type, val);
+        auto res = new IRLiteralNode(&boolType, val);
         valueSet.insert(res);
         ast2value[node] = res;
     }
@@ -943,6 +944,8 @@ IRVarNode *IRBuilder::mallocArray(ASTNewTypeNode *node, int index)
         return resPtr;
     }
 }
+
+
 
 
 

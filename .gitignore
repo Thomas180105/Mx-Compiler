@@ -1,0 +1,11 @@
+/bin
+/build
+/cmake-build-debug
+/gen
+/testcases
+/test
+myIR
+playGround
+tmpFile1
+tmpFile2
+.idea

@@ -5,6 +5,8 @@
 #include "SymbolCollector.h"
 #include "SemanticChecker.h"
 #include "MxLexer.h"
+#include "IRBuilder.h"
+//#include
 using std::cerr;
 
 ASTNode* getAST(std::istream &in = std::cin) {
@@ -83,11 +85,18 @@ int main(int argc, char const *argv[]) {
         }
 
         std::cerr << "stop7" << std::endl;
+
+        IRBuilder irbuilder;
+        std::cerr << "okkkkk1\n";
+        irbuilder.visit(ast.root);
+        std::cerr << "okkkkk2\n";
+        irbuilder.print();
     }
     catch (std::exception &err) {
         std::cerr << "in worker.cpp, an error has been thrown : ";
         cerr << err.what() << '\n';
         return 1;
     }
+
     return 0;
 }

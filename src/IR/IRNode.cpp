@@ -17,7 +17,8 @@ string IRFunctionNode::to_string()
     res += retType->to_string() + " @" + name + '(';
     int s = args.size();
     for (int i = 0; i < s - 1; ++i) res += args[i].first->to_string() + " %" + args[i].second + ", ";
-    res += args[s - 1].first->to_string() + " %" + args[s - 1].second + ")\n";
+    if (s) res += args[s - 1].first->to_string() + " %" + args[s - 1].second;
+    res += ")\n";
     if (blocks.empty()) return res;
     res += "{\n";
     for (auto b : blocks) res += b->to_string() + '\n';
@@ -45,13 +46,23 @@ string IRLiteralNode::to_string()
 {
     if (type->to_string() == "i1") return (value ? "true" : "false");
     else if (type->to_string() == "i32") return std::to_string(value);
-    else if (type->to_string() == "ptr")；
+    else if (type->to_string() == "ptr") return "null";
     return "";//exception
 }
 
 string IRStringNode::to_string()
 {
-    //TODO: details needed double consider
+    //"hello!\n\\\""  转化为  c"hello!\0A\\\22\00"
+    string res = "c\"";
+    for (auto c : str)
+    {
+        if (c == '\n') res += "\\0A";
+        else if (c == '\\') res += "\\\\";
+        else if (c == '\"') res += "\\22";
+        else res += c;
+    }
+    res += "\\00\"";//C风格字符串以'\00'结尾
+    return res;
 }
 
 string IRSuiteNode::to_string()
@@ -70,7 +81,8 @@ string IRCallStmtNode::to_string()
     str += "call " + resType + " @" + funcName + '(';
     int s = args.size();
     for (int i = 0; i < s - 1; ++i) str += args[i]->type->to_string() + " " + args[i]->to_string() + ", ";
-    str += args[s - 1]->type->to_string() + " " + args[s - 1]->to_string() + ')';
+    if (s) str += args[s - 1]->type->to_string() + " " + args[s - 1]->to_string();
+    str += ')';
     return str;
 }
 
@@ -121,7 +133,8 @@ string IRPhiStmtNode::to_string()
     string res =  var->to_string() + " = phi " + var->type->to_string() + " ";
     int s = pairs.size();
     for (int i = 0; i < s - 1; ++i) res += "[ " + pairs[i].first->to_string() + ", %" + pairs[i].second + " ], ";
-    res += "[ " + pairs[s - 1].first->to_string() + ", %" + pairs[s - 1].second + " ]";
+    if (s) res += "[ " + pairs[s - 1].first->to_string() + ", %" + pairs[s - 1].second + " ]";
+    return res;
 }
 
 string IRIcmpStmtNode::to_string()
@@ -137,7 +150,7 @@ string IRBinaryStmtNode::to_string()
 
 string IRZeroExtendStmtNode::to_string()
 {
-    return var->to_string() + " = zext" + value->type->to_string() + " " + value->to_string() + " to " + var->type->to_string();
+    return var->to_string() + " = zext " + value->type->to_string() + " " + value->to_string() + " to " + var->type->to_string();
 }
 
 std::string IRGetElementPtrStmtNode::to_string()

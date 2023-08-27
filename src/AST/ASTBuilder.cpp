@@ -1,7 +1,7 @@
 #include "ASTBuilder.h"
 #include "ASTNode.h"
 #include "Exception.h"
-#define Info
+//#define Info
 
 using std::any_cast;
 
