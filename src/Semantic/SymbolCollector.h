@@ -20,7 +20,7 @@ public:
     {
         for (auto u : node->children)
         {
-            std::cerr<<"+"<<std::endl;
+//            std::cerr<<"+"<<std::endl;
             u->accept(this);
         }
     }

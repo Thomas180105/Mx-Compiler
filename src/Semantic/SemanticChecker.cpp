@@ -41,7 +41,7 @@ void SemanticChecker::visitFunctionNode(ASTFunctionNode *node)
             scope->addVar(p.second, Type(p.first->name, p.first->dim, false));
         }
         for (auto stmt : node->block->stmts) stmt->accept(this);
-        std::cerr<<"%%%%%%"<<node->returnType<<std::endl;
+//        std::cerr<<"%%%%%%"<<node->returnType<<std::endl;
 //注意构造函数的情况，比如class-13中的t = new B();
 //        node->returnType->accept(this);
 //        node->type = Type(node->returnType->name, node->returnType->dim, true);
@@ -51,6 +51,7 @@ void SemanticChecker::visitFunctionNode(ASTFunctionNode *node)
             node->type = Type(node->returnType->name, node->returnType->dim, true);
         }
         else node->type = Type("void", 0, true);
+        if (node->type.name != "void" && !returnFlag) throw semantic_error("non-void function doesn't return value");
     }
     catch(semantic_error &err){
         delete scope;
@@ -64,6 +65,7 @@ void SemanticChecker::visitFunctionNode(ASTFunctionNode *node)
     delete scope;
     scope = returnScope;
     curFunc = nullptr;
+    returnFlag = false;
 }
 
 void SemanticChecker::visitTypeNode(ASTTypeNode *node)
@@ -390,7 +392,7 @@ void SemanticChecker::visitForStmtNode(ASTForStmtNode *node)
         }
         if (node->step) node->step->accept(this);
         ++depth;
-        std::cerr<<"%%%"<<node->block<<std::endl;
+//        std::cerr<<"%%%"<<node->block<<std::endl;
         for (auto stmt : node->block->stmts) stmt->accept(this);
         --depth;
     }
@@ -438,6 +440,7 @@ void SemanticChecker::visitReturnStmtNode(ASTReturnStmtNode *node)
             if (curFunc->returnType->name != "void") throw semantic_error("return type mismatch(2) in returnStmt");
         }
     }
+    returnFlag = true;
 }
 
 void SemanticChecker::visitVarStmtNode(ASTVarStmtNode *node)
@@ -457,7 +460,7 @@ void SemanticChecker::visitVarStmtNode(ASTVarStmtNode *node)
         scope->addVar(varPair.first, curType);
     }
     node->uniqueNameVars = node->vars;
-    for (auto i : node->uniqueNameVars) i.first = scope->tellVarUnique(i.first);
+    for (auto &i : node->uniqueNameVars) i.first = scope->tellVarUnique(i.first);
 }
 
 void SemanticChecker::visitNewTypeNode(ASTNewTypeNode *node)
