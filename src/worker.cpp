@@ -87,9 +87,9 @@ int main(int argc, char const *argv[]) {
 //        std::cerr << "stop7" << std::endl;
 
         IRBuilder irbuilder;
-        std::cerr << "get there *1\n";
+//        std::cerr << "get there *1\n";
         irbuilder.visit(ast.root);
-        std::cerr << "get there *2\n";
+//        std::cerr << "get there *2\n";
         irbuilder.print();
     }
     catch (std::exception &err) {

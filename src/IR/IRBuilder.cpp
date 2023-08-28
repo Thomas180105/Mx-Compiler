@@ -2,7 +2,7 @@
 #include "IRType.h"
 #include "IRNode.h"
 #include "ASTNode.h"
-#define info
+//#define info
 
 static IRIntType boolType(32);
 static IRIntType int32Type(32);
@@ -635,7 +635,7 @@ void IRBuilder::visitAssignExprNode(ASTAssignExprNode *node)
 void IRBuilder::visitBinaryExprNode(ASTBinaryExprNode *node)
 {
     auto IRType = turnIRType(&(node->type));
-    IRVarNode *res = new IRVarNode(IRType, "__binary.res" + std::to_string(counter["binary.res"]++), true);
+    IRVarNode *res = new IRVarNode(IRType, "__binary.tmp" + std::to_string(counter["binary.tmp"]++), true);
     valueSet.insert(res);
     //先判断类型，如果是字符串，则需要调用内置函数进行处理
     if (node->type.is_string())
@@ -891,7 +891,7 @@ void IRBuilder::visitIdExprNode(ASTIdExprNode *node)
     else//类的成员
     {
         auto index = new IRLiteralNode(&int32Type, memberIndex[currentClass->name + '.' + node->name]);
-        auto res = new IRVarNode(&ptrType, "__member.tmp" + std::to_string(counter["member.res"]++), false);
+        auto res = new IRVarNode(&ptrType, "__member.tmp" + std::to_string(counter["member.tmp"]++), false);
         valueSet.insert(index), valueSet.insert(res);
         currentBlock->stmts.push_back(new IRGetElementPtrStmtNode(res, &thisNode, index, turnIRType(&(node->type))));
         ast2value[node] = res;
@@ -903,7 +903,7 @@ void IRBuilder::visitIdExprNode(ASTIdExprNode *node)
 
 void IRBuilder::visitExprStmtNode(ASTExprStmtNode *node)
 {
-    visit(node->expr);
+    if (node->expr) visit(node->expr);
 }
 
 void IRBuilder::visitFuncExprNode(ASTFuncExprNode *node)
@@ -1031,12 +1031,12 @@ IRVarNode *IRBuilder::mallocArray(ASTNewTypeNode *node, int index)
 
         auto i = new IRVarNode(&int32Type, "__new.tmp.i" + std::to_string(counter["new.tmp.i"]++), true);
         valueSet.insert(i);
-        auto phiNode = new IRPhiStmtNode(resPtr);
+        auto phiNode = new IRPhiStmtNode(i);
         currentBlock->stmts.push_back(phiNode);
         phiNode->pairs.emplace_back(&intZeroNode, fromLabel);
         auto next = new IRVarNode(&int32Type, "__new.tmp.next" + std::to_string(counter["new.tmp.next"]++), true);
         valueSet.insert(next);
-        auto addStmt = new IRBinaryStmtNode("+", &intOneNode, i, next);
+        auto addStmt = new IRBinaryStmtNode(op["+"], &intOneNode, i, next);
         currentBlock->stmts.push_back(addStmt);
 
         auto sonPtr = mallocArray(node, index + 1);//递归此处发生

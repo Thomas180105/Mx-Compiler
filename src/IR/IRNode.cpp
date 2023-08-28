@@ -147,9 +147,6 @@ string IRIcmpStmtNode::to_string()
 
 string IRBinaryStmtNode::to_string()
 {
-    std::cerr<<"lhs : "<<lhs<<std::endl;
-    std::cerr<<"rhs : "<<rhs<<std::endl;
-    std::cerr<<"var : "<<var<<std::endl;
     return var->to_string() + " = " + op + " " + lhs->type->to_string() + " " + lhs->to_string() + ", " + rhs->to_string();
 }
 
