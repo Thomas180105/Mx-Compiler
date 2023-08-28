@@ -35,7 +35,7 @@ char *toString(int n)
     return buffer;
 }
 int array_size(void *this_) {return ((int*)this_)[-1];}
-unsigned string_length(char *this_) {return strlen(this_);}
+int string_length(char *this_) {return strlen(this_);}
 char *string_substring(char *this_, int left, int right)
 {
     int length = right - left;
@@ -82,7 +82,7 @@ void *__newIntArray(int size)
 }
 void *__newBoolArray(int size)
 {
-    int *array = malloc(size + 4);
+    int *array = malloc((size << 2) + 4);
     array[0] = size;
     return array + 1;
 }

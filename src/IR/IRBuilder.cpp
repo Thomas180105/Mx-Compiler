@@ -119,13 +119,13 @@ void IRBuilder::InitBuiltInFunc()
     program->functions.push_back(stringGreater);
 
     //i1 string.lessEqual(str str1, str str2)
-    auto stringLessEqual = new IRFunctionNode(&int1Type, "string.lessEqual");
+    auto stringLessEqual = new IRFunctionNode(&int1Type, "string.lessOrEqual");
     stringLessEqual->args.emplace_back(&strType, "str1");
     stringLessEqual->args.emplace_back(&strType, "str2");
     program->functions.push_back(stringLessEqual);
 
     //i1 string.greaterEqual(str str1, str str2)
-    auto stringGreaterEqual = new IRFunctionNode(&int1Type, "string.greaterEqual");
+    auto stringGreaterEqual = new IRFunctionNode(&int1Type, "string.greaterOrEqual");
     stringGreaterEqual->args.emplace_back(&strType, "str1");
     stringGreaterEqual->args.emplace_back(&strType, "str2");
     program->functions.push_back(stringGreaterEqual);
