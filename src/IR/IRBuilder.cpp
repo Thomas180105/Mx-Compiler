@@ -2,6 +2,7 @@
 #include "IRType.h"
 #include "IRNode.h"
 #include "ASTNode.h"
+#define info
 
 static IRIntType boolType(32);
 static IRIntType int32Type(32);
@@ -157,6 +158,9 @@ void IRBuilder::InitGlobalVar()
     {
         visit(u.second);
         currentBlock->stmts.push_back(new IRStoreStmtNode(setVariable(turnIRType(&(u.second->type)), ast2value[u.second]), u.first));
+#ifdef info
+        std::cerr<<"pointer1"<<u.first<<std::endl;
+#endif
     }
     currentBlock->stmts.push_back(new IRRetStmtNode(nullptr));
     currentFunction = nullptr;
@@ -309,7 +313,13 @@ void IRBuilder::visitFunctionNode(ASTFunctionNode *node)
         valueSet.insert(ptrVarNode), valueSet.insert(constVarNode);
         currentBlock->stmts.push_back(new IRAllocaStmtNode(ptrVarNode, varIRType));
         currentBlock->stmts.push_back(new IRStoreStmtNode(constVarNode, ptrVarNode));
+#ifdef info
+        std::cerr<<"pointer2"<<ptrVarNode<<std::endl;
+#endif
         varMap[node->uniqueNameParas[i].second] = ptrVarNode;
+#ifdef info
+        std::cerr<<"about varMap1 : "<<node->uniqueNameParas[i].second<<" -> "<<ptrVarNode<<std::endl;
+#endif
     }
 
     IRVarNode *retVar = nullptr;
@@ -389,6 +399,9 @@ void IRBuilder::visitVarStmtNode(ASTVarStmtNode *node)
             }
             program->globalVarStmts.push_back(varStmt);
             varMap[v.first] = varNode;
+#ifdef info
+            std::cerr<<"about varMap2 : "<<v.first<<" -> "<<varNode<<std::endl;
+#endif
         }
     }
     else
@@ -403,9 +416,21 @@ void IRBuilder::visitVarStmtNode(ASTVarStmtNode *node)
                 visit(v.second);
                 auto constVar = setVariable(varIRType, ast2value[v.second]);
                 currentBlock->stmts.push_back(new IRStoreStmtNode(constVar, var));
+#ifdef info
+                std::cerr<<"pointer3"<<var<<std::endl;
+#endif
             }
-            else if (varIRType->to_string() == "ptr") currentBlock->stmts.push_back(new IRStoreStmtNode(&nullNode, var));
+            else if (varIRType->to_string() == "ptr")
+            {
+                currentBlock->stmts.push_back(new IRStoreStmtNode(&nullNode, var));
+#ifdef info
+                std::cerr<<"pointer4"<<var<<std::endl;
+#endif
+            }
             varMap[v.first] = var;
+#ifdef info
+            std::cerr<<"about varMap3 : "<<v.first<<" -> "<<var<<std::endl;
+#endif
         }
     }
 }
@@ -426,6 +451,9 @@ void IRBuilder::visitReturnStmtNode(ASTReturnStmtNode *node)
         auto ret = setVariable(turnIRType(&(node->expr->type)), ast2value[node->expr]);
         //先给returnVar赋值，然后告诉程序去跳转到returnBlock
         currentBlock->stmts.push_back(new IRStoreStmtNode(ret, returnVar));
+#ifdef info
+        std::cerr<<"pointer5"<<returnVar<<std::endl;
+#endif
         currentBlock->stmts.push_back(new IRBrStmtNode(returnBlock->label));
     }
 }
@@ -577,6 +605,9 @@ void IRBuilder::visitTernaryExprNode(ASTTernaryExprNode *node)
     {
         auto trueConstVar = setVariable(type, ast2value[node->True]);
         currentBlock->stmts.push_back(new IRStoreStmtNode(trueConstVar, res));
+#ifdef info
+        std::cerr<<"pointer6"<<res<<std::endl;
+#endif
     }
     currentBlock->stmts.push_back(new IRBrStmtNode(ternaryEndBlock->label));
 
@@ -587,6 +618,9 @@ void IRBuilder::visitTernaryExprNode(ASTTernaryExprNode *node)
     {
         auto falseConstVar = setVariable(type, ast2value[node->False]);
         currentBlock->stmts.push_back(new IRStoreStmtNode(falseConstVar, res));
+#ifdef info
+        std::cerr<<"pointer7"<<res<<std::endl;
+#endif
     }
     currentBlock->stmts.push_back(new IRBrStmtNode(ternaryEndBlock->label));
 
@@ -603,6 +637,11 @@ void IRBuilder::visitAssignExprNode(ASTAssignExprNode *node)
     auto lhsNode = dynamic_cast<IRVarNode*>(ast2value[node->lhs]);
     auto rhsNode = setVariable(IRType, ast2value[node->rhs]);
     currentBlock->stmts.push_back(new IRStoreStmtNode(rhsNode, lhsNode));
+#ifdef info
+    std::cerr<<"detail-1-pointer8 "<<node->lhs<<std::endl;
+    std::cerr<<"detail-2-pointer8 "<<ast2value[node->lhs]<<std::endl;
+    std::cerr<<"pointer8 "<<lhsNode<<std::endl;
+#endif
 }
 
 
@@ -653,7 +692,7 @@ void IRBuilder::visitBinaryExprNode(ASTBinaryExprNode *node)
         auto opIR = op[node->op];
         if (opIR.find("icmp") != std::string::npos)//为大小比较，需要特殊处理
         {
-            std::cerr<<"&*^%$#"<<node->type.name<<'\n';
+//            std::cerr<<"&*^%$#"<<node->type.name<<'\n';
             auto tmp = new IRVarNode(&int1Type, "__binary.tmp" + std::to_string(counter["binary.tmp"]++), true);
             valueSet.insert(tmp);
             currentBlock->stmts.push_back(new IRIcmpStmtNode(opIR, lhs, rhs, tmp));
@@ -714,11 +753,19 @@ void IRBuilder::visitSingleExprNode(ASTSingleExprNode *node)
     {
         currentBlock->stmts.push_back(new IRBinaryStmtNode("add", exprRes, &intOneNode, res));
         currentBlock->stmts.push_back(new IRStoreStmtNode(res, dynamic_cast<IRVarNode*>(ast2value[node->expr])));
+#ifdef info
+        std::cerr<<"detail-1-pointer9  "<<node->expr<<std::endl;
+        std::cerr<<"detail-2-pointer9  "<<ast2value[node->expr]<<std::endl;
+        std::cerr<<"pointer9  "<<dynamic_cast<IRVarNode*>(ast2value[node->expr])<<std::endl;
+#endif
     }
     else if (node->op == "--")
     {
         currentBlock->stmts.push_back(new IRBinaryStmtNode("sub", exprRes, &intOneNode, res));
         currentBlock->stmts.push_back(new IRStoreStmtNode(res, dynamic_cast<IRVarNode*>(ast2value[node->expr])));
+#ifdef info
+        std::cerr<<"pointer10"<<dynamic_cast<IRVarNode*>(ast2value[node->expr])<<std::endl;
+#endif
     }
     if (node->right) ast2value[node] = exprRes;
     else ast2value[node] = res;
@@ -887,7 +934,7 @@ IRVarNode *IRBuilder::mallocArray(ASTNewTypeNode *node, int index)
 {
     visit(node->size[index]);
     auto sizeNode = setVariable(&int32Type, ast2value[node->size[index]]);
-    if (index == node->size.size())
+    if (index == node->size.size() - 1)
     {
         //递归出口
         auto resPtr = new IRVarNode(&ptrType, "__new.res" + std::to_string(counter["new.res"]++), true);
@@ -933,6 +980,10 @@ IRVarNode *IRBuilder::mallocArray(ASTNewTypeNode *node, int index)
         valueSet.insert(index);
         currentBlock->stmts.push_back(new IRGetElementPtrStmtNode(index, resPtr, i, &ptrType));
         currentBlock->stmts.push_back(new IRStoreStmtNode(sonPtr, index));
+#ifdef info
+        std::cerr<<"pointer12"<<index<<std::endl;
+#endif
+
         phiNode->pairs.emplace_back(next, currentBlock->label);
         auto comp = new IRVarNode(&int1Type, "__new.tmp.comp" + std::to_string(counter["new.tmp.comp"]++), true);
         valueSet.insert(comp);

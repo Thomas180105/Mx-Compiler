@@ -95,6 +95,8 @@ string IRAllocaStmtNode::to_string()
 string IRStoreStmtNode::to_string()
 {
     //store i32 %0, ptr @i
+    std::cerr<<"value : "<<value<<std::endl;
+    std::cerr<<"pointer : "<<pointer<<std::endl;
     return "store " + value->type->to_string() + " " + value->to_string() + ", " + pointer->type->to_string() + " " + pointer->to_string();
 }
 

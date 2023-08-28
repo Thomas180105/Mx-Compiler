@@ -69,7 +69,7 @@ public:
         for (auto v : valueSet) delete v;
     }
     void print() {program->print();}
-    void visitProgramNode(ASTProgramNode *node) override; //TODO:this need double check!!!
+    void visitProgramNode(ASTProgramNode *node) override;
     void visitClassNode(ASTClassNode *node) override;
     void visitFunctionNode(ASTFunctionNode *node) override;
 //    void visitTypeNode(ASTTypeNode *node) override;

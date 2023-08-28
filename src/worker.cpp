@@ -56,7 +56,7 @@ int main(int argc, char const *argv[]) {
 //            std::cerr << "stop2.7" << std::endl;
         }
 
-        std::cerr << "in worker.cpp, we get a ASTTree successfully" << std::endl;
+//        std::cerr << "in worker.cpp, we get a ASTTree successfully" << std::endl;
 
 //        std::cerr << "stop3" << std::endl;
         GlobalScope globalscope(nullptr);
@@ -65,31 +65,31 @@ int main(int argc, char const *argv[]) {
         classsanner.builtInInit();
         classsanner.visit(ast.root);
 
-        std::cerr << "stop4" << std::endl;
+//        std::cerr << "stop4" << std::endl;
 
         FunctionScanner functionscanner(&globalscope);
         functionscanner.builtInInit();
-        std::cerr<<"the ast.root is "<<ast.root<<std::endl;
+//        std::cerr<<"the ast.root is "<<ast.root<<std::endl;
         functionscanner.visit(ast.root);
 
-        std::cerr << "stop5" << std::endl;
+//        std::cerr << "stop5" << std::endl;
 
         SemanticChecker semanticchecker(&globalscope);
-        std::cerr << "stop5.5" << std::endl;
+//        std::cerr << "stop5.5" << std::endl;
         semanticchecker.visit(ast.root);
 
-        std::cerr << "stop6" << std::endl;
+//        std::cerr << "stop6" << std::endl;
 
         for (int i = 1; i < argc; ++i) {
             if (std::string(argv[i]) == "-fsyntax-only") return 0;
         }
 
-        std::cerr << "stop7" << std::endl;
+//        std::cerr << "stop7" << std::endl;
 
         IRBuilder irbuilder;
-        std::cerr << "okkkkk1\n";
+        std::cerr << "get there *1\n";
         irbuilder.visit(ast.root);
-        std::cerr << "okkkkk2\n";
+        std::cerr << "get there *2\n";
         irbuilder.print();
     }
     catch (std::exception &err) {
