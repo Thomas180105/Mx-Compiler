@@ -40,6 +40,15 @@ std::any ASTBuilder::visitFunctionDeclaration(MxParser::FunctionDeclarationConte
         node->paras = *any_cast<vector<pair<ASTTypeNode*, string>>>(&tmp);
     }
     node->block = dynamic_cast<ASTSuiteNode *>(any_cast<ASTStmtNode*>((visit(ctx->body))));
+
+    //如果main()没有返回值，则默认加上“return 0”
+    if (!returnFlag && node->name == "main")
+    {
+        auto ret = new ASTReturnStmtNode;
+        ret->expr = new ASTLiterExprNode("0");
+        node->block->stmts.push_back(ret);
+    }
+    returnFlag = false;
     return node;
 }
 
@@ -251,6 +260,7 @@ std::any ASTBuilder::visitReturnStmt(MxParser::ReturnStmtContext *ctx)
 #endif
     auto node = new ASTReturnStmtNode;
     if (ctx->returnStatement()->expression()) node->expr = any_cast<ASTExprNode*>(visit(ctx->returnStatement()->expression()));
+    returnFlag = true;
     return static_cast<ASTStmtNode*>(node);
 }
 

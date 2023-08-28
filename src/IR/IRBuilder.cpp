@@ -246,7 +246,7 @@ void IRBuilder::registerFunction(ASTFunctionNode *node)
     if (currentClass)
     {
         func->name = currentClass->name + "." + node->name;
-        func->args.emplace_back(currentClass, "this");//显式地加入this指针
+        func->args.emplace_back(&ptrType, "this");//显式地加入this指针
         memberFuncSet.insert(func->name);
     }
     else func->name = node->name;
@@ -282,15 +282,15 @@ void IRBuilder::visitProgramNode(ASTProgramNode *node)
     initGlobalStr();
     for (auto c : node->children)
     {
-        if (auto var = dynamic_cast<ASTVarStmtNode*>(c)) var->accept(this);
+        if (auto var = dynamic_cast<ASTVarStmtNode*>(c)) visit(var);
         else if (auto func = dynamic_cast<ASTFunctionNode*>(c)) registerFunction(func);
         else if (auto classDef = dynamic_cast<ASTClassNode*>(c)) registerClass(classDef);
     }
     InitGlobalVar();
     for (auto c : node->children)
     {
-        if (auto func = dynamic_cast<ASTFunctionNode*>(c)) func->accept(this);
-        else if (auto classDef = dynamic_cast<ASTClassNode*>(c)) classDef->accept(this);
+        if (auto func = dynamic_cast<ASTFunctionNode*>(c)) visit(func);
+        else if (auto classDef = dynamic_cast<ASTClassNode*>(c)) visit(classDef);
     }
 }
 
@@ -331,7 +331,7 @@ void IRBuilder::visitFunctionNode(ASTFunctionNode *node)
     auto retBlock = new IRSuiteNode("__return_block" + std::to_string(counter["return_block"]++));
     returnBlock = retBlock;
     returnVar = retVar;
-    visit(node->block);//same as "node->block->accept(this);"
+    visit(node->block);
 
     //对于func->blocks中的每一个block添加跳转returnBlock的语句
     for (auto &IRBlock : func->blocks)
@@ -372,8 +372,8 @@ void IRBuilder::visitClassNode(ASTClassNode *node)
 {
     auto cls = str2clsType[node->name];
     currentClass = cls;
-    for (auto func : node->functions) func->accept(this);
-    for (auto cons : node->constructors) cons->accept(this);
+    for (auto func : node->functions) visit(func);
+    for (auto cons : node->constructors) visit(cons);
     currentClass = nullptr;
 }
 
@@ -516,7 +516,7 @@ void IRBuilder::visitForStmtNode(ASTForStmtNode *node)
     currentBlock = body;
     auto nextBlockCopy = nextBlock, endBlockCopy = endBlock;
     nextBlock = step, endBlock = end;
-    node->block->accept(this);
+    visit(node->block);
     currentBlock->stmts.push_back(new IRBrStmtNode(step->label));
     nextBlock = nextBlockCopy, endBlock = endBlockCopy;
 

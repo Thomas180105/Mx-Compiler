@@ -5,6 +5,7 @@
 //有些函数没有被重载：没有额外信息或者信息处理很简单（叶节点），直接父亲结点帮忙把事情做了
 //可能需要再检查的未重载函数：visitIdentifier
 class ASTBuilder : public MxParserBaseVisitor {
+    bool returnFlag = false;
     virtual std::any visitProgram(MxParser::ProgramContext *ctx) override;
     virtual std::any visitFunctionDeclaration(MxParser::FunctionDeclarationContext *ctx) override;
     virtual std::any visitFunctionDeclList(MxParser::FunctionDeclListContext *ctx) override;
