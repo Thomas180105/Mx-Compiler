@@ -61,7 +61,7 @@ void SemanticChecker::visitFunctionNode(ASTFunctionNode *node)
     }
     //赋值node中的unique命名
     node->uniqueNameParas = node->paras;
-    for (auto i : node->uniqueNameParas) i.second = scope->tellVarUnique(i.second);
+    for (auto &i : node->uniqueNameParas) i.second = scope->tellVarUnique(i.second);
     delete scope;
     scope = returnScope;
     curFunc = nullptr;

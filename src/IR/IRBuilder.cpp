@@ -20,6 +20,11 @@ static IRLiteralNode intMinusOneNode(&int32Type, -1);
 static IRLiteralNode boolFalseNode(&int1Type, 0);
 static IRLiteralNode boolTrueNode(&int1Type, 1);
 
+void printAst2Value(ASTNode* p1, IRTypeNode* p2, int line)
+{
+    if(!p2) std::cerr<<"about ast2value : "<<p1<<" -> "<<p2<<" at line "<<line<<std::endl;
+}
+
 void IRBuilder::InitBuiltInFunc()
 {
     //void print(string str);
@@ -149,7 +154,7 @@ void IRBuilder::InitBuiltInFunc()
 void IRBuilder::InitGlobalVar()
 {
     if (varToInit.empty()) return;
-    auto init = new IRFunctionNode(&voidType, "__.init");
+    auto init = new IRFunctionNode(&voidType, "__.initGlobalVar");
     program->functions.push_back(init);
     init->blocks.push_back(new IRSuiteNode("entry"));
     currentFunction = init;
@@ -158,9 +163,6 @@ void IRBuilder::InitGlobalVar()
     {
         visit(u.second);
         currentBlock->stmts.push_back(new IRStoreStmtNode(setVariable(turnIRType(&(u.second->type)), ast2value[u.second]), u.first));
-#ifdef info
-        std::cerr<<"pointer1"<<u.first<<std::endl;
-#endif
     }
     currentBlock->stmts.push_back(new IRRetStmtNode(nullptr));
     currentFunction = nullptr;
@@ -300,7 +302,7 @@ void IRBuilder::visitFunctionNode(ASTFunctionNode *node)
     currentBlock = func->blocks.front();
     if (node->name == "main" && !varToInit.empty())
     {
-        auto initCall = new IRCallStmtNode(nullptr, "__.initGlobalStr");
+        auto initCall = new IRCallStmtNode(nullptr, "__.initGlobalVar");
         currentBlock->stmts.push_back(initCall);
     }
 
@@ -313,9 +315,6 @@ void IRBuilder::visitFunctionNode(ASTFunctionNode *node)
         valueSet.insert(ptrVarNode), valueSet.insert(constVarNode);
         currentBlock->stmts.push_back(new IRAllocaStmtNode(ptrVarNode, varIRType));
         currentBlock->stmts.push_back(new IRStoreStmtNode(constVarNode, ptrVarNode));
-#ifdef info
-        std::cerr<<"pointer2"<<ptrVarNode<<std::endl;
-#endif
         varMap[node->uniqueNameParas[i].second] = ptrVarNode;
 #ifdef info
         std::cerr<<"about varMap1 : "<<node->uniqueNameParas[i].second<<" -> "<<ptrVarNode<<std::endl;
@@ -416,16 +415,10 @@ void IRBuilder::visitVarStmtNode(ASTVarStmtNode *node)
                 visit(v.second);
                 auto constVar = setVariable(varIRType, ast2value[v.second]);
                 currentBlock->stmts.push_back(new IRStoreStmtNode(constVar, var));
-#ifdef info
-                std::cerr<<"pointer3"<<var<<std::endl;
-#endif
             }
             else if (varIRType->to_string() == "ptr")
             {
                 currentBlock->stmts.push_back(new IRStoreStmtNode(&nullNode, var));
-#ifdef info
-                std::cerr<<"pointer4"<<var<<std::endl;
-#endif
             }
             varMap[v.first] = var;
 #ifdef info
@@ -451,9 +444,6 @@ void IRBuilder::visitReturnStmtNode(ASTReturnStmtNode *node)
         auto ret = setVariable(turnIRType(&(node->expr->type)), ast2value[node->expr]);
         //先给returnVar赋值，然后告诉程序去跳转到returnBlock
         currentBlock->stmts.push_back(new IRStoreStmtNode(ret, returnVar));
-#ifdef info
-        std::cerr<<"pointer5"<<returnVar<<std::endl;
-#endif
         currentBlock->stmts.push_back(new IRBrStmtNode(returnBlock->label));
     }
 }
@@ -605,9 +595,6 @@ void IRBuilder::visitTernaryExprNode(ASTTernaryExprNode *node)
     {
         auto trueConstVar = setVariable(type, ast2value[node->True]);
         currentBlock->stmts.push_back(new IRStoreStmtNode(trueConstVar, res));
-#ifdef info
-        std::cerr<<"pointer6"<<res<<std::endl;
-#endif
     }
     currentBlock->stmts.push_back(new IRBrStmtNode(ternaryEndBlock->label));
 
@@ -618,15 +605,15 @@ void IRBuilder::visitTernaryExprNode(ASTTernaryExprNode *node)
     {
         auto falseConstVar = setVariable(type, ast2value[node->False]);
         currentBlock->stmts.push_back(new IRStoreStmtNode(falseConstVar, res));
-#ifdef info
-        std::cerr<<"pointer7"<<res<<std::endl;
-#endif
     }
     currentBlock->stmts.push_back(new IRBrStmtNode(ternaryEndBlock->label));
 
     //endBlock
     currentBlock = ternaryEndBlock;
     ast2value[node] = res;//write the res of the calculation
+#ifdef info
+    printAst2Value(node, res, 1);
+#endif
 }
 
 void IRBuilder::visitAssignExprNode(ASTAssignExprNode *node)
@@ -638,9 +625,9 @@ void IRBuilder::visitAssignExprNode(ASTAssignExprNode *node)
     auto rhsNode = setVariable(IRType, ast2value[node->rhs]);
     currentBlock->stmts.push_back(new IRStoreStmtNode(rhsNode, lhsNode));
 #ifdef info
-    std::cerr<<"detail-1-pointer8 "<<node->lhs<<std::endl;
-    std::cerr<<"detail-2-pointer8 "<<ast2value[node->lhs]<<std::endl;
-    std::cerr<<"pointer8 "<<lhsNode<<std::endl;
+//    std::cerr<<"detail-1-pointer8 "<<node->lhs<<std::endl;
+//    std::cerr<<"detail-2-pointer8 "<<ast2value[node->lhs]<<std::endl;
+//    std::cerr<<"pointer8 "<<lhsNode<<std::endl;
 #endif
 }
 
@@ -683,6 +670,9 @@ void IRBuilder::visitBinaryExprNode(ASTBinaryExprNode *node)
         currentBlock = logicEndBlock;
         logicEndBlock->stmts.push_back(tmp);
         ast2value[node] = res;
+#ifdef info
+        printAst2Value(node, res, 2);
+#endif
     }
     else
     {
@@ -701,9 +691,17 @@ void IRBuilder::visitBinaryExprNode(ASTBinaryExprNode *node)
         else
         {
             currentBlock->stmts.push_back(new IRBinaryStmtNode(opIR, lhs, rhs, res));
+#ifdef info
+//            std::cerr<<"binaryExpr debug0 -detail=1 : "<<node->rhs<<std::endl;
+//            std::cerr<<"binaryExpr debug0 -detail=2 : "<<ast2value[node->rhs]<<std::endl;
+//            std::cerr<<"binaryExpr debug0 : "<<rhs<<std::endl;
+#endif
         }
     }
     ast2value[node] = res;
+#ifdef info
+    printAst2Value(node, res, 3);
+#endif
 }
 
 void IRBuilder::visitMemberExprNode(ASTMemberExprNode *node)
@@ -720,12 +718,19 @@ void IRBuilder::visitMemberExprNode(ASTMemberExprNode *node)
         valueSet.insert(eleIndex);
         currentBlock->stmts.push_back(new IRGetElementPtrStmtNode(tmp, dynamic_cast<IRVarNode*>(objectPtr), eleIndex, turnIRType(&(node->type))));
         ast2value[node] = tmp;
+#ifdef info
+        printAst2Value(node, tmp, 4);
+#endif
     }
     else//成员方法的调用
     {
         if (node->object->type.dim) memberFuncMap[node] = "array.size";
         else memberFuncMap[node] = node->object->type.name + '.' + node->member;
-        ast2value[node] = setVariable(&ptrType, ast2value[node->object]);
+        auto text = setVariable(&ptrType, ast2value[node->object]);
+        ast2value[node] = text;
+#ifdef info
+        printAst2Value(node, text, 5);
+#endif
     }
 }
 
@@ -738,7 +743,13 @@ void IRBuilder::visitSingleExprNode(ASTSingleExprNode *node)
     auto res = new IRVarNode(IRType, "__single.res" + std::to_string(counter["single.res"]++), true);
     valueSet.insert(res);
 
-    if (node->op == "-") currentBlock->stmts.push_back(new IRBinaryStmtNode("sub", &intZeroNode, exprRes, res));
+    if (node->op == "-")
+    {
+        currentBlock->stmts.push_back(new IRBinaryStmtNode("sub", &intZeroNode, exprRes, res));
+#ifdef info
+        std::cerr<<"binaryExpr debug1 : "<<exprRes<<std::endl;
+#endif
+    }
     else if (node->op == "~") currentBlock->stmts.push_back(new IRBinaryStmtNode("xor", exprRes, &intMinusOneNode, res));
     else if (node->op == "!")
     {
@@ -754,21 +765,30 @@ void IRBuilder::visitSingleExprNode(ASTSingleExprNode *node)
         currentBlock->stmts.push_back(new IRBinaryStmtNode("add", exprRes, &intOneNode, res));
         currentBlock->stmts.push_back(new IRStoreStmtNode(res, dynamic_cast<IRVarNode*>(ast2value[node->expr])));
 #ifdef info
-        std::cerr<<"detail-1-pointer9  "<<node->expr<<std::endl;
-        std::cerr<<"detail-2-pointer9  "<<ast2value[node->expr]<<std::endl;
-        std::cerr<<"pointer9  "<<dynamic_cast<IRVarNode*>(ast2value[node->expr])<<std::endl;
+//        std::cerr<<"detail-1-pointer9  "<<node->expr<<std::endl;
+//        std::cerr<<"detail-2-pointer9  "<<ast2value[node->expr]<<std::endl;
+//        std::cerr<<"pointer9  "<<dynamic_cast<IRVarNode*>(ast2value[node->expr])<<std::endl;
 #endif
     }
     else if (node->op == "--")
     {
         currentBlock->stmts.push_back(new IRBinaryStmtNode("sub", exprRes, &intOneNode, res));
         currentBlock->stmts.push_back(new IRStoreStmtNode(res, dynamic_cast<IRVarNode*>(ast2value[node->expr])));
+    }
+    if (node->right)
+    {
+        ast2value[node] = exprRes;
 #ifdef info
-        std::cerr<<"pointer10"<<dynamic_cast<IRVarNode*>(ast2value[node->expr])<<std::endl;
+        printAst2Value(node, exprRes, 6);
 #endif
     }
-    if (node->right) ast2value[node] = exprRes;
-    else ast2value[node] = res;
+    else
+    {
+        ast2value[node] = res;
+#ifdef info
+        printAst2Value(node, res, 7);
+#endif
+    }
 }
 
 void IRBuilder::visitLiterExprNode(ASTLiterExprNode *node)
@@ -779,20 +799,35 @@ void IRBuilder::visitLiterExprNode(ASTLiterExprNode *node)
         auto res = new IRLiteralNode(&boolType, val);
         valueSet.insert(res);
         ast2value[node] = res;
+#ifdef info
+        printAst2Value(node, res, 8);
+#endif
     }
     else if (node->type.is_int())
     {
         auto res = new IRLiteralNode(&int32Type, std::stoi(node->value));
         valueSet.insert(res);
         ast2value[node] = res;
+#ifdef info
+        printAst2Value(node, res, 9);
+#endif
     }
-    else if (node->type.is_null()) ast2value[node] = &nullNode;
+    else if (node->type.is_null())
+    {
+        ast2value[node] = &nullNode;
+#ifdef info
+        printAst2Value(node, &nullNode, 10);
+#endif
+    }
     else if (node->type.is_string())
     {
         auto str = node->value.substr(1, node->value.size() - 2);
         if (strMap.count(str))//如果已经存在，就直接维护一下ast2value就可以直接返回了
         {
             ast2value[node] = strMap[str];
+#ifdef info
+            printAst2Value(node, strMap[str], 11);
+#endif
             return;
         }
         string res;
@@ -813,6 +848,9 @@ void IRBuilder::visitLiterExprNode(ASTLiterExprNode *node)
         program->globalVarStmts.push_back(new IRGlobalVarStmtNode(strNode, globalVar));
         strMap[str] = globalVar;
         ast2value[node] = globalVar;
+#ifdef info
+        printAst2Value(node, globalVar, 12);
+#endif
     }
 }
 
@@ -827,15 +865,28 @@ void IRBuilder::visitArrayExprNode(ASTArrayExprNode *node)
     valueSet.insert(res);
     currentBlock->stmts.push_back(new IRGetElementPtrStmtNode(res, dynamic_cast<IRVarNode*>(arrayVar), indexVar, IRType));
     ast2value[node] = res;
+#ifdef info
+    printAst2Value(node, res, 13);
+#endif
 }
 
 void IRBuilder::visitIdExprNode(ASTIdExprNode *node)
 {
-    if (node->name == "this") ast2value[node] = &thisNode;
+    if (node->name == "this")
+    {
+        ast2value[node] = &thisNode;
+#ifdef info
+        printAst2Value(node, &thisNode, 14);
+#endif
+    }
     else if (!currentClass || !memberIndex.count(currentClass->name + '.' + node->name))
     {
         //不是类的成员，或者虽然在类中，但是没有相关的memberIndex信息(对应着函数的传参)
         ast2value[node] = varMap[node->uniqueName];
+#ifdef info
+        printAst2Value(node, varMap[node->uniqueName], 15);
+        std::cerr<<"in line 15, the varMap: "<<node->uniqueName<<" -> "<<varMap[node->uniqueName]<<std::endl;
+#endif
     }
     else//类的成员
     {
@@ -844,6 +895,9 @@ void IRBuilder::visitIdExprNode(ASTIdExprNode *node)
         valueSet.insert(index), valueSet.insert(res);
         currentBlock->stmts.push_back(new IRGetElementPtrStmtNode(res, &thisNode, index, turnIRType(&(node->type))));
         ast2value[node] = res;
+#ifdef info
+        printAst2Value(node, res, 16);
+#endif
     }
 }
 
@@ -893,6 +947,9 @@ void IRBuilder::visitFuncExprNode(ASTFuncExprNode *node)
     }
     currentBlock->stmts.push_back(callNode);
     ast2value[node] = res;
+#ifdef info
+    printAst2Value(node, res, 17);
+#endif
 }
 
 void IRBuilder::visitNewExprNode(ASTNewExprNode *node)
@@ -919,11 +976,18 @@ void IRBuilder::visitNewExprNode(ASTNewExprNode *node)
             currentBlock->stmts.push_back(consNode);
         }
         ast2value[node] = res;
+#ifdef info
+        printAst2Value(node, res, 18);
+#endif
     }
     else
     {
         //more complex situation, like ptr var = new int [5][] or ptr var = new int [5][6]
-        ast2value[node] = mallocArray(node->newType, 0);//递归函数
+        auto text = mallocArray(node->newType, 0);
+        ast2value[node] = text;//递归函数
+#ifdef info
+        printAst2Value(node, text, 19);
+#endif
     }
 }
 
@@ -980,9 +1044,6 @@ IRVarNode *IRBuilder::mallocArray(ASTNewTypeNode *node, int index)
         valueSet.insert(index);
         currentBlock->stmts.push_back(new IRGetElementPtrStmtNode(index, resPtr, i, &ptrType));
         currentBlock->stmts.push_back(new IRStoreStmtNode(sonPtr, index));
-#ifdef info
-        std::cerr<<"pointer12"<<index<<std::endl;
-#endif
 
         phiNode->pairs.emplace_back(next, currentBlock->label);
         auto comp = new IRVarNode(&int1Type, "__new.tmp.comp" + std::to_string(counter["new.tmp.comp"]++), true);

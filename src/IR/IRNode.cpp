@@ -95,8 +95,8 @@ string IRAllocaStmtNode::to_string()
 string IRStoreStmtNode::to_string()
 {
     //store i32 %0, ptr @i
-    std::cerr<<"value : "<<value<<std::endl;
-    std::cerr<<"pointer : "<<pointer<<std::endl;
+//    std::cerr<<"value : "<<value<<std::endl;
+//    std::cerr<<"pointer : "<<pointer<<std::endl;
     return "store " + value->type->to_string() + " " + value->to_string() + ", " + pointer->type->to_string() + " " + pointer->to_string();
 }
 
@@ -147,6 +147,9 @@ string IRIcmpStmtNode::to_string()
 
 string IRBinaryStmtNode::to_string()
 {
+    std::cerr<<"lhs : "<<lhs<<std::endl;
+    std::cerr<<"rhs : "<<rhs<<std::endl;
+    std::cerr<<"var : "<<var<<std::endl;
     return var->to_string() + " = " + op + " " + lhs->type->to_string() + " " + lhs->to_string() + ", " + rhs->to_string();
 }
 
@@ -158,5 +161,5 @@ string IRZeroExtendStmtNode::to_string()
 std::string IRGetElementPtrStmtNode::to_string()
 {
     //%t1 = getelementptr %struct.ST, ptr %s, i32 1
-    return var->to_string() + " = getelementptr " + type->to_string() + ", ptr" + ptr->to_string() + ", i32" + index->to_string();
+    return var->to_string() + " = getelementptr " + type->to_string() + ", ptr " + ptr->to_string() + ", i32 " + index->to_string();
 }
