@@ -13,16 +13,23 @@ using std::string;
 
 class ASMBuilder : public IRBaseVisitor{
 private:
-    ASMBlockNode *currentBlock = nullptr;
+    RegisterManager regPool;
+    ASMSuiteNode *currentBlock = nullptr;
     IRFunctionNode *currentFunction = nullptr;
     ASMProgramNode *program;
     set<ASMVarNode*> valueSet;
     map<string, int> counter;
     map<string, ASMVarNode*> varMap;
+    int currentSize = 0;
 
 private:
-    void print() { std::cout << program->to_string(); }
-
+    void IRUpdReg(IRTypeNode *IRValue, Register *reg);//use IRNode to update Register
+    ASMVarNode *IR2ASM(IRVarNode *IRValue);//from IRNode to ASMNode, if ASMNode not exist, create a new one
+    ASMLocalVarNode* registerLocalVar(IRVarNode* var, bool flag);//With presence check, create a new ASMNode from a IRNode
+    void ASMVarUpdReg(ASMVarNode *ASMValue, Register *reg);//use ASMNode(not ptr type) to update Register
+    void ASMPtrUpdReg(ASMVarNode *ASMValue, Register *reg);//use ASMNode(ptr type) to update Register
+    void storeVar(ASMVarNode *var, Register *reg);//store Register to ASMNode(not ptr type)
+    void storePtr(ASMVarNode *var, Register *reg);//store Register to ASMNode(ptr type)
 public:
     ASMBuilder()
     {
@@ -33,28 +40,29 @@ public:
         delete program;
         for (auto v : valueSet) delete v;
     }
-    virtual void visitProgram(IRProgramNode* node);
-    virtual void visitFunction(IRFunctionNode* node);
-    virtual void visitGlobalVarStmt(IRGlobalVarStmtNode* node);
-    virtual void visitSuite(IRSuiteNode* node);
-    virtual void visitType(IRTypeNode* node);
-    virtual void visitVar(IRVarNode* node);
-    virtual void visitGlobalVar(IRGlobalVarNode* node);
-    virtual void visitLiteral(IRLiteralNode* node);
-    virtual void visitString(IRStringNode* node);
-    virtual void visitCallStmt(IRCallStmtNode* node);
-    virtual void visitAllocaStmt(IRAllocaStmtNode* node);
-    virtual void visitStoreStmt(IRStoreStmtNode* node);
-    virtual void visitBrStmt(IRBrStmtNode* node);
-    virtual void visitBrCondStmt(IRBrCondStmtNode* node);
-    virtual void visitRetStmt(IRRetStmtNode* node);
-    virtual void visitLoadStmt(IRLoadStmtNode* node);
-    virtual void visitTruncateStmt(IRTruncateStmtNode* node);
-    virtual void visitPhiStmt(IRPhiStmtNode* node);
-    virtual void visitIcmpStmt(IRIcmpStmtNode* node);
-    virtual void visitZeroExtendStmt(IRZeroExtendStmtNode* node);
-    virtual void visitBinaryStmt(IRBinaryStmtNode* node);
-    virtual void visitGetElementPtrStmt(IRGetElementPtrStmtNode* node);
+    void print() { std::cout << program->to_string(); }
+    virtual void visitProgram(IRProgramNode* node)override;
+    virtual void visitFunction(IRFunctionNode* node)override;
+    virtual void visitGlobalVarStmt(IRGlobalVarStmtNode* node)override;
+    virtual void visitSuite(IRSuiteNode* node)override;
+    virtual void visitType(IRTypeNode* node)override;
+    virtual void visitVar(IRVarNode* node)override;
+    virtual void visitGlobalVar(IRGlobalVarNode* node)override;
+    virtual void visitLiteral(IRLiteralNode* node)override;
+    virtual void visitString(IRStringNode* node)override;
+    virtual void visitCallStmt(IRCallStmtNode* node)override;
+    virtual void visitAllocaStmt(IRAllocaStmtNode* node)override;
+    virtual void visitStoreStmt(IRStoreStmtNode* node)override;
+    virtual void visitBrStmt(IRBrStmtNode* node)override;
+    virtual void visitBrCondStmt(IRBrCondStmtNode* node)override;
+    virtual void visitRetStmt(IRRetStmtNode* node)override;
+    virtual void visitLoadStmt(IRLoadStmtNode* node)override;
+    virtual void visitTruncateStmt(IRTruncateStmtNode* node)override;
+    virtual void visitPhiStmt(IRPhiStmtNode* node)override;
+    virtual void visitIcmpStmt(IRIcmpStmtNode* node)override;
+    virtual void visitZeroExtendStmt(IRZeroExtendStmtNode* node)override;
+    virtual void visitBinaryStmt(IRBinaryStmtNode* node)override;
+    virtual void visitGetElementPtrStmt(IRGetElementPtrStmtNode* node)override;
 };
 
 

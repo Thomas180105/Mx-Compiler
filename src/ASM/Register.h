@@ -35,7 +35,7 @@ public:
         for (int i = 0; i < 32; ++i) name2reg[x[i].name] = &x[i];
         for (int i = 0; i < 32; ++i) name2reg["x" + std::to_string(i)] = &x[i];
     }
-    Register* getRegPtr(const string &name) {return name2reg[name];}
+    Register* getReg(const string &name) {return name2reg[name];}
 };
 
 #endif //MXCOMPILER_2023_REGISTER_H

@@ -1043,7 +1043,7 @@ IRVarNode *IRBuilder::mallocArray(ASTNewTypeNode *node, int index)
         auto index = new IRVarNode(&ptrType, "__new.tmp.ind" + std::to_string(counter["new.tmp.ind"]++), true);
         valueSet.insert(index);
         currentBlock->stmts.push_back(new IRGetElementPtrStmtNode(index, resPtr, i, &ptrType));
-        currentBlock->stmts.push_back(new IRStoreStmtNode(sonPtr, index));
+        currentBlock->stmts.push_back(new IRStoreStmtNode(sonPtr, index, true));
 
         phiNode->pairs.emplace_back(next, currentBlock->label);
         auto comp = new IRVarNode(&int1Type, "__new.tmp.comp" + std::to_string(counter["new.tmp.comp"]++), true);

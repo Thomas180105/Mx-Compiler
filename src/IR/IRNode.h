@@ -133,8 +133,9 @@ class IRStoreStmtNode : public IRStmtNode{
 public:
     IRTypeNode *value = nullptr;//值
     IRVarNode *pointer = nullptr;//变量
+    bool is_ptr = false;
     //顺序与IR语句相一致，如：store i32 1, ptr %b
-    explicit IRStoreStmtNode(IRTypeNode *value_, IRVarNode *pointer_) : value(value_), pointer(pointer_) {}
+    explicit IRStoreStmtNode(IRTypeNode *value_, IRVarNode *pointer_, bool p_ = false) : value(value_), pointer(pointer_), is_ptr(p_) {}
     void accept(IRBaseVisitor *visitor) override { visitor->visitStoreStmt(this); }
     string to_string() override;
     void print() override { std::cout << to_string(); }
