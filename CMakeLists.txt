@@ -11,11 +11,12 @@ include_directories(src/AST)
 include_directories(src/Semantic)
 include_directories(src/Utility)
 include_directories(src/IR)
+include_directories(src/ASM)
 include_directories(MxAntlr)
 
 file(GLOB_RECURSE sources src/*.cpp src/*.h)
 
-add_executable(MxCompiler_2023 ${sources} src/IR/IRType.h src/IR/IRNode.cpp)
+add_executable(MxCompiler_2023 ${sources} src/IR/IRType.h src/IR/IRNode.cpp src/ASM/ASMBuilder.cpp src/ASM/ASMBuilder.h src/ASM/ASMNode.cpp src/ASM/ASMNode.h src/ASM/Register.h)
 
 target_link_libraries(MxCompiler_2023 MxAntlr)
 
