@@ -21,6 +21,7 @@ private:
     map<string, int> counter;
     map<string, ASMVarNode*> varMap;
     int currentSize = 0;
+    map<string, vector<ASMLaCmdNode*>> str2la;
 
 private:
     void IRUpdReg(IRTypeNode *IRValue, Register *reg);//use IRNode to update Register

@@ -34,7 +34,7 @@ public:
     explicit ASMRegRegCmdNode(string op_, Register *dest_, Register *src1_, Register *src2_) : op(op_), dest(dest_), src1(src1_), src2(src2_) {}
     string to_string() override;
 };
-
+//x[dest] = M[x[src] + offset]
 class ASMLoadCmdNode : public ASMCommandNode {
 public:
     string op;
@@ -44,7 +44,7 @@ public:
     explicit ASMLoadCmdNode(string op_, Register *dest_, Register *src_, int offset_ = 0) : op(op_), dest(dest_), src(src_), offset(offset_) {}
     string to_string() override;
 };
-
+//M[x[dest] + offset] = x[src]
 class ASMStoreCmdNode : public ASMCommandNode {
 public:
     string op;
