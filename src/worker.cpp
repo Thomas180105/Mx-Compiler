@@ -88,16 +88,12 @@ int main(int argc, char const *argv[]) {
 //        std::cerr << "stop7" << std::endl;
 
         IRBuilder irbuilder;
-//        std::cerr << "get there *1\n";
         irbuilder.visit(ast.root);
-//        std::cerr << "get there *2\n";
 //        irbuilder.print();
 
         ASMBuilder asmBuilder;
         asmBuilder.visit(irbuilder.root());
-        std::cerr<<"get there *3\n";
         asmBuilder.print();
-        std::cerr<<"get there *4\n";
     }
     catch (std::exception &err) {
         std::cerr << "in worker.cpp, an error has been thrown : ";

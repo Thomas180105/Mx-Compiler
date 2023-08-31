@@ -437,7 +437,7 @@ void IRBuilder::visitContinueStmtNode(ASTContinueStmtNode *node)
 void IRBuilder::visitReturnStmtNode(ASTReturnStmtNode *node)
 {
     //ASTExprNode* expr = nullptr;
-    if (!node->expr) currentBlock->stmts.push_back(new IRRetStmtNode(nullptr));
+    if (!node->expr) currentBlock->stmts.push_back(new IRBrStmtNode(returnBlock->label));//currentBlock->stmts.push_back(new IRRetStmtNode(nullptr));
     else
     {
         visit(node->expr);
