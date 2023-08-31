@@ -858,8 +858,9 @@ void IRBuilder::visitArrayExprNode(ASTArrayExprNode *node)
 {
     //ASTExprNode *array = nullptr, *index = nullptr;
     auto IRType = turnIRType(&(node->type));
-    visit(node->array), visit(node->index);
+    visit(node->array);
     auto arrayVar = setVariable(&ptrType, ast2value[node->array]);
+    visit(node->index);
     auto indexVar = setVariable(&int32Type, ast2value[node->index]);
     auto res = new IRVarNode(&ptrType, "__array.res" + std::to_string(counter["array.tmp"]++), false);
     valueSet.insert(res);

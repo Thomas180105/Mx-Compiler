@@ -91,7 +91,7 @@ void ASMBuilder::storeVar(ASMVarNode *var, Register *reg)//reg写var
 
 void ASMBuilder::storePtr(ASMVarNode *var, Register *reg)
 {
-    if (var->is_ptr) return;//TODO: or throw error?
+    if (!var->is_ptr) return;//TODO: or throw error?
     if (auto tmp1 = dynamic_cast<ASMLocalVarNode *>(var))
     {
         auto load = new ASMLoadCmdNode("lw", regPool.getReg("s1"), regPool.getReg("sp"), tmp1->offset);//把指针存的内容（实际1内容的地址）取出来，暂存s1
@@ -141,24 +141,37 @@ void ASMBuilder::visitFunction(IRFunctionNode *node)
 {
     //TODO : double check here
     if (node->blocks.empty()) return;//declare
+//    if (node->name == "fun")
+//    {
+//        std::cerr<<"fun()!\n";
+//    }
     currentFunction = node;
     program->textSection->functions.push_back(new ASMFunctionNode());
     currentSize = 0;
     for (auto &b : node->blocks) visit(b);
     currentSize = (currentSize + 15) / 16 * 16;
+    spAllocaCmd->setImm(-currentSize), spFreeCmd->setImm(currentSize);
     currentFunction = nullptr;
 }
 
 void ASMBuilder::visitSuite(IRSuiteNode *node)
 {
     ASMSuiteNode *tmpBlock = nullptr;
-    if (node->label != "entry") tmpBlock = new ASMSuiteNode(".L" + node->label);//.L表示本地标签
+    if (node->label != "entry")
+    {
+        tmpBlock = new ASMSuiteNode(".L" + node->label);//.L表示本地标签
+//        if (node->label == "__return_block0")
+//        {
+//            std::cerr<<"%%%\n";
+//        }
+    }
     else
     {
         tmpBlock = new ASMSuiteNode(currentFunction->name);
         currentBlock = tmpBlock;
         auto add = new ASMImmRegCmdNode("addi", regPool.getReg("sp"), regPool.getReg("sp"), -currentSize);//为函数开辟栈空间
         currentBlock->cmds.push_back(add);
+        spAllocaCmd = add;
         int stackCnt = 0;
         for (int i = 8, k = currentFunction->args.size(); i < k; ++i)
         {
@@ -189,7 +202,10 @@ void ASMBuilder::visitSuite(IRSuiteNode *node)
     }
     program->textSection->functions.back()->blocks.push_back(tmpBlock);//往时期最进的func中塞tmpBlock
     currentBlock = tmpBlock;
-    for (auto &c : node->stmts) visit(c);
+    for (auto &c : node->stmts)
+    {
+        visit(c);
+    }
 }
 
 void ASMBuilder::visitCallStmt(IRCallStmtNode *node)
@@ -215,6 +231,10 @@ void ASMBuilder::visitCallStmt(IRCallStmtNode *node)
     auto call = new ASMCallCmdNode(node->funcName);
     currentBlock->cmds.push_back(call);
     if (var) storeVar(var, regPool.getReg("a0"));
+    if (node->funcName == "getInt")
+    {
+        std::cerr<<var<<std::endl;
+    }
 }
 
 void ASMBuilder::visitAllocaStmt(IRAllocaStmtNode *node)
@@ -225,6 +245,10 @@ void ASMBuilder::visitAllocaStmt(IRAllocaStmtNode *node)
 void ASMBuilder::visitStoreStmt(IRStoreStmtNode *node)
 {//node->value是值,node->pointer是被赋值的变量
     //TODO: double think here
+    if (node->value->to_string() == "%__call.tmp1")
+    {
+        std::cerr<<"therkjbihguyhvjbjkljiohu\n";
+    }
     IRUpdReg(node->value, regPool.getReg("s0"));
     auto ASMVar = varMap[node->pointer->name];
     if (ASMVar->is_ptr) storePtr(ASMVar, regPool.getReg("s0"));
@@ -243,10 +267,11 @@ void ASMBuilder::visitBrStmt(IRBrStmtNode *node)
 void ASMBuilder::visitBrCondStmt(IRBrCondStmtNode *node)
 {
     auto laCmd = new ASMLaCmdNode(regPool.getReg("t6"), currentBlock->label);
+    currentBlock->cmds.push_back(laCmd);
     IRUpdReg(node->condition, regPool.getReg("s0"));
     auto bne = new ASMBrCondStmtNode("bne", regPool.getReg("s0"), regPool.getReg("zero"), ".L" + node->trueLabel);
     auto jump = new ASMJumpCmdNode(".L" + node->falseLabel);
-    currentBlock->cmds.push_back(laCmd), currentBlock->cmds.push_back(bne), currentBlock->cmds.push_back(jump);
+    currentBlock->cmds.push_back(bne), currentBlock->cmds.push_back(jump);
 }
 
 void ASMBuilder::visitRetStmt(IRRetStmtNode *node)
@@ -255,6 +280,7 @@ void ASMBuilder::visitRetStmt(IRRetStmtNode *node)
     auto raVar = dynamic_cast<ASMLocalVarNode *>(varMap["..ra" + currentFunction->name]);
     auto load = new ASMLoadCmdNode("lw", regPool.getReg("ra"), regPool.getReg("sp"), raVar->offset);
     auto addi = new ASMImmRegCmdNode("addi", regPool.getReg("sp"), regPool.getReg("sp"), currentSize);//Freeing space on the function stack frame.
+    spFreeCmd = addi;
     auto ret = new ASMRetCmdNode();
     currentBlock->cmds.push_back(load), currentBlock->cmds.push_back(addi), currentBlock->cmds.push_back(ret);
 }
@@ -265,14 +291,14 @@ void ASMBuilder::visitLoadStmt(IRLoadStmtNode *node)
     auto ptr = varMap[node->pointer->name];
     if (ptr->is_ptr) ASMPtrUpdReg(ptr, regPool.getReg("s0"));
     else ASMVarUpdReg(ptr, regPool.getReg("s0"));
-    storePtr(var, regPool.getReg("s0"));
+    storeVar(var, regPool.getReg("s0"));
 }
 
 void ASMBuilder::visitTruncateStmt(IRTruncateStmtNode *node)
 {//node->var,等式左侧  node->value,等式右侧 被类型压缩的值
     IRUpdReg(node->value, regPool.getReg("s0"));
     auto ASMVar = registerLocalVar(node->var, false);
-    storePtr(ASMVar, regPool.getReg("s0"));
+    storeVar(ASMVar, regPool.getReg("s0"));
 }
 
 void ASMBuilder::visitPhiStmt(IRPhiStmtNode *node)
@@ -300,12 +326,12 @@ void ASMBuilder::visitPhiStmt(IRPhiStmtNode *node)
         currentBlock = blockCopy;
     }
 
-    for (auto la : str2la[currentFunction->name])
+    for (auto la : str2la[currentBlock->label])
     {
         la->name = endBlock->label;
         str2la[endBlock->label].push_back(la);
     }
-    str2la[currentFunction->name].clear();
+    str2la[currentBlock->label].clear();
     program->textSection->functions.back()->blocks.push_back(endBlock);
     currentBlock = endBlock;
     storeVar(ASMVar, regPool.getReg("s0"));
@@ -326,7 +352,7 @@ void ASMBuilder::visitIcmpStmt(IRIcmpStmtNode *node)
     else if (node->op == "icmp sgt") currentBlock->cmds.push_back(new ASMRegRegCmdNode("slt", reg0, reg1, reg0));
     else if (node->op == "icmp sge")
     {
-        currentBlock->cmds.push_back(new ASMRegRegCmdNode("slt", reg0, reg1, reg0));
+        currentBlock->cmds.push_back(new ASMRegRegCmdNode("slt", reg0, reg0, reg1));
         currentBlock->cmds.push_back(new ASMImmRegCmdNode("xori", reg0, reg0, 1));
     }
     else if (node->op == "icmp eq")
@@ -348,7 +374,7 @@ void ASMBuilder::visitZeroExtendStmt(IRZeroExtendStmtNode *node)
 {
     IRUpdReg(node->value, regPool.getReg("s0"));
     auto ASMVar = registerLocalVar(node->var, false);
-    storePtr(ASMVar, regPool.getReg("s0"));
+    storeVar(ASMVar, regPool.getReg("s0"));
 }
 
 void ASMBuilder::visitBinaryStmt(IRBinaryStmtNode *node)
@@ -377,8 +403,8 @@ void ASMBuilder::visitGetElementPtrStmt(IRGetElementPtrStmtNode *node)
     auto size = new ASMImmRegCmdNode("addi", regPool.getReg("t1"), regPool.getReg("zero"), node->var->type->size());
     auto mul = new ASMRegRegCmdNode("mul", regPool.getReg("s1"), regPool.getReg("s1"), regPool.getReg("t1"));
     auto add = new ASMRegRegCmdNode("add", regPool.getReg("s0"), regPool.getReg("s0"), regPool.getReg("s1"));
-    storeVar(left, regPool.getReg("s0"));
     currentBlock->cmds.push_back(size), currentBlock->cmds.push_back(mul), currentBlock->cmds.push_back(add);
+    storeVar(left, regPool.getReg("s0"));
 }
 
 

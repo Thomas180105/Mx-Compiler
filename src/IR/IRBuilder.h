@@ -68,6 +68,7 @@ public:
         delete program;
         for (auto v : valueSet) delete v;
     }
+    IRProgramNode *root() {return program;}
     void print() {program->print();}
     void visitProgramNode(ASTProgramNode *node) override;
     void visitClassNode(ASTClassNode *node) override;

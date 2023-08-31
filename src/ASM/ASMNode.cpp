@@ -27,7 +27,7 @@ string ASMBrCondStmtNode::to_string()
 
 string ASMJumpCmdNode::to_string()
 {
-    return "j" + label;
+    return "j " + label;
 }
 
 string ASMLaCmdNode::to_string()
@@ -42,7 +42,7 @@ string ASMRetCmdNode::to_string()
 
 string ASMCallCmdNode::to_string()
 {
-    return "call" + name;
+    return "call " + name;
 }
 
 string ASMLocalVarNode::to_string()

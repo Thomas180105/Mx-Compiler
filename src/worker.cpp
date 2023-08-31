@@ -6,6 +6,7 @@
 #include "SemanticChecker.h"
 #include "MxLexer.h"
 #include "IRBuilder.h"
+#include "ASMBuilder.h"
 //#include
 using std::cerr;
 
@@ -90,7 +91,13 @@ int main(int argc, char const *argv[]) {
 //        std::cerr << "get there *1\n";
         irbuilder.visit(ast.root);
 //        std::cerr << "get there *2\n";
-        irbuilder.print();
+//        irbuilder.print();
+
+        ASMBuilder asmBuilder;
+        asmBuilder.visit(irbuilder.root());
+        std::cerr<<"get there *3\n";
+        asmBuilder.print();
+        std::cerr<<"get there *4\n";
     }
     catch (std::exception &err) {
         std::cerr << "in worker.cpp, an error has been thrown : ";

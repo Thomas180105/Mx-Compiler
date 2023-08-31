@@ -21,6 +21,7 @@ public:
     Register *dest = nullptr;
     Register *src = nullptr;
     int imm = 0;
+    void setImm(const int imm_) {imm = imm_;}
     explicit ASMImmRegCmdNode(string op_, Register *dest_, Register *src_, int imm_ = 0) : op(op_), dest(dest_), src(src_), imm(imm_) {}
     string to_string() override;
 };

@@ -22,6 +22,8 @@ private:
     map<string, ASMVarNode*> varMap;
     int currentSize = 0;
     map<string, vector<ASMLaCmdNode*>> str2la;
+    ASMImmRegCmdNode *spAllocaCmd = nullptr;
+    ASMImmRegCmdNode *spFreeCmd = nullptr;
 
 private:
     void IRUpdReg(IRTypeNode *IRValue, Register *reg);//use IRNode to update Register
@@ -46,11 +48,11 @@ public:
     virtual void visitFunction(IRFunctionNode* node)override;
     virtual void visitGlobalVarStmt(IRGlobalVarStmtNode* node)override;
     virtual void visitSuite(IRSuiteNode* node)override;
-    virtual void visitType(IRTypeNode* node)override;
-    virtual void visitVar(IRVarNode* node)override;
-    virtual void visitGlobalVar(IRGlobalVarNode* node)override;
-    virtual void visitLiteral(IRLiteralNode* node)override;
-    virtual void visitString(IRStringNode* node)override;
+//    virtual void visitType(IRTypeNode* node)override;
+//    virtual void visitVar(IRVarNode* node)override;
+//    virtual void visitGlobalVar(IRGlobalVarNode* node)override;
+//    virtual void visitLiteral(IRLiteralNode* node)override;
+//    virtual void visitString(IRStringNode* node)override;
     virtual void visitCallStmt(IRCallStmtNode* node)override;
     virtual void visitAllocaStmt(IRAllocaStmtNode* node)override;
     virtual void visitStoreStmt(IRStoreStmtNode* node)override;
