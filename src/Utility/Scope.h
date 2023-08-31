@@ -90,6 +90,7 @@ public:
         if (!isClassExisted(name)) throw semantic_error("[scope]class not found, the className is " + name);
         return types[name];
     }
+    void setName(string name) { scopeName = name; }
 };
 
 #endif //MXCOMPILER_2023_SCOPE_H

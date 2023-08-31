@@ -61,7 +61,7 @@ int main(int argc, char const *argv[]) {
 
 //        std::cerr << "stop3" << std::endl;
         GlobalScope globalscope(nullptr);
-
+        globalscope.setName(".0");
         ClassScanner classsanner(&globalscope);
         classsanner.builtInInit();
         classsanner.visit(ast.root);

@@ -24,6 +24,7 @@ private:
     map<string, vector<ASMLaCmdNode*>> str2la;
     ASMImmRegCmdNode *spAllocaCmd = nullptr;
     ASMImmRegCmdNode *spFreeCmd = nullptr;
+    set<string> globalVarSet;
 
 private:
     void IRUpdReg(IRTypeNode *IRValue, Register *reg);//use IRNode to update Register
@@ -33,6 +34,7 @@ private:
     void ASMPtrUpdReg(ASMVarNode *ASMValue, Register *reg);//use ASMNode(ptr type) to update Register
     void storeVar(ASMVarNode *var, Register *reg);//store Register to ASMNode(not ptr type)
     void storePtr(ASMVarNode *var, Register *reg);//store Register to ASMNode(ptr type)
+    void printError();
 public:
     ASMBuilder()
     {

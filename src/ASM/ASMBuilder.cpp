@@ -1,6 +1,14 @@
 #include "ASMBuilder.h"
 #include "IRNode.h"
 #include "ASMNode.h"
+#define info
+
+void ASMBuilder::printError()
+{
+    {
+        std::cerr<<"NOIJHGCFTYUI!\n";
+    }
+}
 
 void ASMBuilder::IRUpdReg(IRTypeNode *IRValue, Register *reg)
 {
@@ -41,6 +49,9 @@ void ASMBuilder::ASMVarUpdReg(ASMVarNode *ASMValue, Register *reg)
 {
     if (auto tmp1 = dynamic_cast<ASMLocalVarNode *>(ASMValue))
     {
+//        auto test1 = dynamic_cast<ASMLocalVarNode *>(ASMValue);
+//        auto test2 = dynamic_cast<ASMGlobalVarNode *>(ASMValue);
+
         auto load = new ASMLoadCmdNode("lw", reg, regPool.getReg("sp"), tmp1->offset);
         currentBlock->cmds.push_back(load);
     }
@@ -54,6 +65,26 @@ void ASMBuilder::ASMVarUpdReg(ASMVarNode *ASMValue, Register *reg)
             currentBlock->cmds.push_back(move);
         }
     }
+    /*if (!globalVarSet.contains(ASMValue->name))
+    {
+        auto tmp1 = dynamic_cast<ASMLocalVarNode *>(ASMValue);
+        auto test1 = dynamic_cast<ASMLocalVarNode *>(ASMValue);
+        auto test2 = dynamic_cast<ASMGlobalVarNode *>(ASMValue);
+
+        auto load = new ASMLoadCmdNode("lw", reg, regPool.getReg("sp"), tmp1->offset);
+        currentBlock->cmds.push_back(load);
+    }
+    else if (globalVarSet.contains(ASMValue->name))
+    {
+        auto tmp2 = dynamic_cast<ASMGlobalVarNode *>(ASMValue);
+        auto laCmd = new ASMLaCmdNode(reg, tmp2->name);
+        currentBlock->cmds.push_back(laCmd);
+        if (!ASMValue->is_ptr)//如果不是指针变量，则拿到地址之后需要去相应地址找
+        {
+            auto move = new ASMLoadCmdNode("lw", reg, reg);
+            currentBlock->cmds.push_back(move);
+        }
+    }*/
 }
 
 void ASMBuilder::ASMPtrUpdReg(ASMVarNode *ASMValue, Register *reg)
@@ -110,14 +141,26 @@ void ASMBuilder::storePtr(ASMVarNode *var, Register *reg)
 
 void ASMBuilder::visitProgram(IRProgramNode *node)
 {
+#ifdef info
+    bool f1 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+#endif
     if (!node->globalVarStmts.empty()) program->dataSection = new ASMDataSectionNode();
     if (!node->functions.empty()) program->textSection = new ASMTextSectionNode();
     for (auto g : node->globalVarStmts) visit(g);
     for (auto f : node->functions) visit(f);
+
+#ifdef info
+    bool f2 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+    if (f1 && !f2) printError();
+#endif
 }
 
 void ASMBuilder::visitGlobalVarStmt(IRGlobalVarStmtNode *node)
 {
+#ifdef info
+    bool f1 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+#endif
+
     string str;
     auto strIR = dynamic_cast<IRStringNode *>(node->value);
     bool is_string = (strIR != nullptr);
@@ -132,13 +175,31 @@ void ASMBuilder::visitGlobalVarStmt(IRGlobalVarStmtNode *node)
 //        else if (str == "false") str = "0";
     }
     auto var = new ASMGlobalVarNode(node->var->name, is_string);
-    valueSet.insert(var), varMap[node->var->name] = var;
+    valueSet.insert(var), varMap[node->var->name] = var, globalVarSet.insert(node->var->name);
     auto globalVarStmt = new ASMGlobalVarStmtNode(node->var->name, str, is_string);
     program->dataSection->globalVarStmts.push_back(globalVarStmt);
+//    if (node->var->name == "c")
+//    {
+//        std::cerr<<"error in visitGlobalVarStmt(), check here!\n";
+//        auto tmp1 = dynamic_cast<ASMLocalVarNode*>(varMap[node->var->name]);
+//        auto tmp2 = dynamic_cast<ASMGlobalVarNode*>(varMap[node->var->name]);
+//        int xxx = 0;
+//    }
+
+#ifdef info
+    bool f2 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+    if (f1 && !f2)
+    {
+        printError();
+    }
+#endif
 }
 
 void ASMBuilder::visitFunction(IRFunctionNode *node)
 {
+#ifdef info
+    bool f1 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+#endif
     //TODO : double check here
     if (node->blocks.empty()) return;//declare
 //    if (node->name == "fun")
@@ -152,10 +213,21 @@ void ASMBuilder::visitFunction(IRFunctionNode *node)
     currentSize = (currentSize + 15) / 16 * 16;
     spAllocaCmd->setImm(-currentSize), spFreeCmd->setImm(currentSize);
     currentFunction = nullptr;
+
+#ifdef info
+    bool f2 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+    if (f1 && !f2)
+    {
+        printError();
+    }
+#endif
 }
 
 void ASMBuilder::visitSuite(IRSuiteNode *node)
 {
+#ifdef info
+    bool f1 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+#endif
     ASMSuiteNode *tmpBlock = nullptr;
     if (node->label != "entry")
     {
@@ -206,10 +278,21 @@ void ASMBuilder::visitSuite(IRSuiteNode *node)
     {
         visit(c);
     }
+
+#ifdef info
+    bool f2 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+    if (f1 && !f2)
+    {
+        printError();
+    }
+#endif
 }
 
 void ASMBuilder::visitCallStmt(IRCallStmtNode *node)
 {
+#ifdef info
+    bool f1 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+#endif
     ASMLocalVarNode *var = nullptr;
     if (node->res) var = registerLocalVar(node->res, node->res->type->to_string() == "ptr");
     int stackCnt = 0;
@@ -230,52 +313,111 @@ void ASMBuilder::visitCallStmt(IRCallStmtNode *node)
 
     auto call = new ASMCallCmdNode(node->funcName);
     currentBlock->cmds.push_back(call);
+//    if (node->funcName == "abs")
+//    {
+//        std::cerr<<var<<std::endl;
+//    }
+
     if (var) storeVar(var, regPool.getReg("a0"));
-    if (node->funcName == "getInt")
+
+#ifdef info
+    bool f2 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+    if (f1 && !f2)
     {
-        std::cerr<<var<<std::endl;
+        printError();
     }
+#endif
 }
 
 void ASMBuilder::visitAllocaStmt(IRAllocaStmtNode *node)
 {
+#ifdef info
+    bool f1 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+#endif
+//    if (node->var->name == "c.2")
+//    {
+//        printError();
+//    }
     registerLocalVar(node->var, false);
+#ifdef info
+    bool f2 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+    if (f1 && !f2)
+    {
+        printError();
+    }
+#endif
 }
 
 void ASMBuilder::visitStoreStmt(IRStoreStmtNode *node)
 {//node->value是值,node->pointer是被赋值的变量
+#ifdef info
+    bool f1 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+#endif
     //TODO: double think here
-    if (node->value->to_string() == "%__call.tmp1")
-    {
-        std::cerr<<"therkjbihguyhvjbjkljiohu\n";
-    }
+//    if (node->value->to_string() == "%__call.tmp1")
+//    {
+//        std::cerr<<"therkjbihguyhvjbjkljiohu\n";
+//    }
     IRUpdReg(node->value, regPool.getReg("s0"));
     auto ASMVar = varMap[node->pointer->name];
     if (ASMVar->is_ptr) storePtr(ASMVar, regPool.getReg("s0"));
     else storeVar(ASMVar, regPool.getReg("s0"));
 
     if (node->is_ptr) ASMVar->is_ptr = true;
+
+#ifdef info
+    bool f2 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+    if (f1 && !f2)
+    {
+        printError();
+    }
+#endif
 }
 
 void ASMBuilder::visitBrStmt(IRBrStmtNode *node)
 {
+#ifdef info
+    bool f1 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+#endif
     auto laCmd = new ASMLaCmdNode(regPool.getReg("t6"), currentBlock->label);
     auto jump = new ASMJumpCmdNode(".L" + node->destinationLabel);
     currentBlock->cmds.push_back(laCmd), currentBlock->cmds.push_back(jump);
+
+#ifdef info
+    bool f2 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+    if (f1 && !f2)
+    {
+        printError();
+    }
+#endif
 }
 
 void ASMBuilder::visitBrCondStmt(IRBrCondStmtNode *node)
 {
+#ifdef info
+    bool f1 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+#endif
     auto laCmd = new ASMLaCmdNode(regPool.getReg("t6"), currentBlock->label);
     currentBlock->cmds.push_back(laCmd);
     IRUpdReg(node->condition, regPool.getReg("s0"));
     auto bne = new ASMBrCondStmtNode("bne", regPool.getReg("s0"), regPool.getReg("zero"), ".L" + node->trueLabel);
     auto jump = new ASMJumpCmdNode(".L" + node->falseLabel);
     currentBlock->cmds.push_back(bne), currentBlock->cmds.push_back(jump);
+
+#ifdef info
+    bool f2 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+    if (f1 && !f2)
+    {
+        printError();
+    }
+#endif
 }
 
 void ASMBuilder::visitRetStmt(IRRetStmtNode *node)
 {
+#ifdef info
+    bool f1 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+#endif
     if (node->var) ASMVarUpdReg(varMap[node->var->name], regPool.getReg("a0"));
     auto raVar = dynamic_cast<ASMLocalVarNode *>(varMap["..ra" + currentFunction->name]);
     auto load = new ASMLoadCmdNode("lw", regPool.getReg("ra"), regPool.getReg("sp"), raVar->offset);
@@ -283,26 +425,68 @@ void ASMBuilder::visitRetStmt(IRRetStmtNode *node)
     spFreeCmd = addi;
     auto ret = new ASMRetCmdNode();
     currentBlock->cmds.push_back(load), currentBlock->cmds.push_back(addi), currentBlock->cmds.push_back(ret);
+
+#ifdef info
+    bool f2 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+    if (f1 && !f2)
+    {
+        printError();    }
+#endif
 }
 
 void ASMBuilder::visitLoadStmt(IRLoadStmtNode *node)
 {
+#ifdef info
+    bool f1 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+#endif
+//    if (node->var->name == "__var.tmp4")
+//    {
+//        std::cerr<<"uhjbjbhu\n";
+//    }
     auto var = registerLocalVar(node->var, node->var->type->to_string() == "ptr");//with present check
     auto ptr = varMap[node->pointer->name];
+
+    if (node->var->name == "__var.tmp4")
+    {
+        auto test1 = dynamic_cast<ASMLocalVarNode*>(ptr);
+        auto test2 = dynamic_cast<ASMGlobalVarNode*>(ptr);
+        int xxx = 0;
+    }
+
     if (ptr->is_ptr) ASMPtrUpdReg(ptr, regPool.getReg("s0"));
     else ASMVarUpdReg(ptr, regPool.getReg("s0"));
     storeVar(var, regPool.getReg("s0"));
+
+#ifdef info
+    bool f2 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+    if (f1 && !f2)
+    {
+        printError();    }
+#endif
 }
 
 void ASMBuilder::visitTruncateStmt(IRTruncateStmtNode *node)
 {//node->var,等式左侧  node->value,等式右侧 被类型压缩的值
+#ifdef info
+    bool f1 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+#endif
     IRUpdReg(node->value, regPool.getReg("s0"));
     auto ASMVar = registerLocalVar(node->var, false);
     storeVar(ASMVar, regPool.getReg("s0"));
+
+#ifdef info
+    bool f2 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+    if (f1 && !f2)
+    {
+        printError();    }
+#endif
 }
 
 void ASMBuilder::visitPhiStmt(IRPhiStmtNode *node)
 {
+#ifdef info
+    bool f1 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+#endif
     auto ASMVar = registerLocalVar(node->var, false);
     auto endBlock = new ASMSuiteNode(".LPhiEnd" + std::to_string(counter["PhiEnd"]++));
     for (auto p : node->pairs)
@@ -335,10 +519,20 @@ void ASMBuilder::visitPhiStmt(IRPhiStmtNode *node)
     program->textSection->functions.back()->blocks.push_back(endBlock);
     currentBlock = endBlock;
     storeVar(ASMVar, regPool.getReg("s0"));
+
+#ifdef info
+    bool f2 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+    if (f1 && !f2)
+    {
+        printError();    }
+#endif
 }
 
 void ASMBuilder::visitIcmpStmt(IRIcmpStmtNode *node)
 {
+#ifdef info
+    bool f1 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+#endif
     auto reg0 = regPool.getReg("s0");//指针传递
     auto reg1 = regPool.getReg("s1");
     IRUpdReg(node->lhs, reg0);
@@ -368,17 +562,37 @@ void ASMBuilder::visitIcmpStmt(IRIcmpStmtNode *node)
     else throw std::runtime_error("unknown icmp op");
     auto res = registerLocalVar(node->var, false);
     storeVar(res, reg0);
+
+#ifdef info
+    bool f2 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+    if (f1 && !f2)
+    {
+        printError();    }
+#endif
 }
 
 void ASMBuilder::visitZeroExtendStmt(IRZeroExtendStmtNode *node)
 {
+#ifdef info
+    bool f1 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+#endif
     IRUpdReg(node->value, regPool.getReg("s0"));
     auto ASMVar = registerLocalVar(node->var, false);
     storeVar(ASMVar, regPool.getReg("s0"));
+
+#ifdef info
+    bool f2 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+    if (f1 && !f2)
+    {
+        printError();    }
+#endif
 }
 
 void ASMBuilder::visitBinaryStmt(IRBinaryStmtNode *node)
 {
+#ifdef info
+    bool f1 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+#endif
     auto reg0 = regPool.getReg("s0");
     auto reg1 = regPool.getReg("s1");
     IRUpdReg(node->lhs, reg0);
@@ -392,10 +606,20 @@ void ASMBuilder::visitBinaryStmt(IRBinaryStmtNode *node)
     currentBlock->cmds.push_back(new ASMRegRegCmdNode(op, reg0, reg0, reg1));
     auto res = registerLocalVar(node->var, false);
     storeVar(res, reg0);
+
+#ifdef info
+    bool f2 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+    if (f1 && !f2)
+    {
+        printError();    }
+#endif
 }
 
 void ASMBuilder::visitGetElementPtrStmt(IRGetElementPtrStmtNode *node)
 {
+#ifdef info
+    bool f1 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+#endif
     auto left = registerLocalVar(node->var, true);
     auto right = varMap[node->ptr->name];
     ASMVarUpdReg(right, regPool.getReg("s0"));
@@ -405,6 +629,13 @@ void ASMBuilder::visitGetElementPtrStmt(IRGetElementPtrStmtNode *node)
     auto add = new ASMRegRegCmdNode("add", regPool.getReg("s0"), regPool.getReg("s0"), regPool.getReg("s1"));
     currentBlock->cmds.push_back(size), currentBlock->cmds.push_back(mul), currentBlock->cmds.push_back(add);
     storeVar(left, regPool.getReg("s0"));
+
+#ifdef info
+    bool f2 = varMap.count("c") && dynamic_cast<ASMGlobalVarNode*>(varMap["c"]);
+    if (f1 && !f2)
+    {
+        printError();    }
+#endif
 }
 
 
