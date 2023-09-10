@@ -5,10 +5,6 @@
 //书写op=的作用是可以在对应类型的node中调用op来直接访问对应的值
 //不需要在.g4文件中额外定义。ANTLR会根据上下文自动识别和处理EOF标记
 
-
-//TODO : 把for以及if中的statement改为wrapper，其中wrapper（hst-suite）由stmt|suiteStatement(hst-block)组成
-//TODO : array11似乎有问题，本应该在builder中报错，但是事实上却在semantic中异常退出
-
 parser grammar MxParser;//这行代码不是强制要求，但根据具体情况，它可以提供更好的可读性和清晰度
 options {
   tokenVocab=MxLexer;
